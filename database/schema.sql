@@ -1,0 +1,120 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(40) NOT NULL DEFAULT 'admin',
+    plan_key VARCHAR(40) NOT NULL DEFAULT 'free',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key VARCHAR(120) PRIMARY KEY,
+    setting_value LONGTEXT NOT NULL,
+    value_type VARCHAR(30) NOT NULL DEFAULT 'string',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS plans (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    plan_key VARCHAR(60) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    price_label VARCHAR(120) NOT NULL,
+    monthly_limit INT UNSIGNED NULL,
+    description TEXT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    plan_key VARCHAR(60) NOT NULL,
+    status VARCHAR(40) NOT NULL DEFAULT 'active',
+    starts_at DATETIME NULL,
+    ends_at DATETIME NULL,
+    provider VARCHAR(60) NULL,
+    provider_subscription_id VARCHAR(190) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (plan_key),
+    INDEX (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS batches (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    source_type VARCHAR(40) NOT NULL DEFAULT 'paste',
+    barcode_type VARCHAR(80) NOT NULL,
+    total_rows INT UNSIGNED NOT NULL DEFAULT 0,
+    valid_rows INT UNSIGNED NOT NULL DEFAULT 0,
+    invalid_rows INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS barcode_items (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    batch_id INT UNSIGNED NULL,
+    line_no INT UNSIGNED NOT NULL,
+    original_text TEXT NOT NULL,
+    normalized_text TEXT NULL,
+    ai_text TEXT NULL,
+    status VARCHAR(20) NOT NULL,
+    error_message TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (batch_id),
+    INDEX (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS usage_logs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    batch_id INT UNSIGNED NULL,
+    usage_type VARCHAR(60) NOT NULL DEFAULT 'barcode_generation',
+    quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (batch_id),
+    INDEX (usage_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS payment_events (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    provider VARCHAR(60) NOT NULL,
+    event_type VARCHAR(120) NOT NULL,
+    provider_event_id VARCHAR(190) NULL,
+    payload LONGTEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (provider),
+    INDEX (event_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    key_hash VARCHAR(255) NOT NULL,
+    last_used_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    revoked_at DATETIME NULL,
+    INDEX (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS saved_templates (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    name VARCHAR(160) NOT NULL,
+    barcode_type VARCHAR(80) NOT NULL,
+    settings_json LONGTEXT NULL,
+    is_favorite TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (barcode_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
