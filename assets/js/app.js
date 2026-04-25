@@ -1,4 +1,52 @@
 (function () {
+    // ── Theme toggle ─────────────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIconMoon = document.getElementById('themeIconMoon');
+    const themeIconSun = document.getElementById('themeIconSun');
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('bos-theme', theme);
+        if (themeIconMoon) themeIconMoon.style.display = theme === 'dark' ? 'none' : '';
+        if (themeIconSun) themeIconSun.style.display = theme === 'dark' ? '' : 'none';
+    }
+
+    // Init icon state
+    applyTheme(localStorage.getItem('bos-theme') || 'light');
+
+    themeToggle?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Sidebar collapse ─────────────────────────────────────
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarCollapseBtn?.addEventListener('click', () => {
+        if (!sidebar) return;
+        sidebar.classList.toggle('collapsed');
+        localStorage.setItem('bos-sidebar', sidebar.classList.contains('collapsed') ? '1' : '0');
+    });
+
+    // Restore sidebar state
+    if (sidebar && localStorage.getItem('bos-sidebar') === '1') {
+        sidebar.classList.add('collapsed');
+    }
+
+    // ── Keyboard shortcuts ────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        const shortcuts = { g: '?view=generator', h: '?view=history', a: '?view=api', v: '?view=validation', t: '?view=templates' };
+        const key = e.key.toLowerCase();
+        if (shortcuts[key]) {
+            window.location.href = shortcuts[key];
+        }
+    });
+
+    // ── Table ─────────────────────────────────────────────────
     const table = document.getElementById('resultTable');
     const previewCanvas = document.getElementById('previewCanvas');
     const emptyPreview = document.getElementById('emptyPreview');

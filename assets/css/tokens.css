@@ -1,0 +1,113 @@
+/* barcodeOS — design tokens
+   Warm & premium aesthetic: off-white paper, deep ink, warm ember accent.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "JetBrains Mono", Menlo, monospace;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+
+  --accent-hue: 32;
+  --accent: oklch(0.64 0.15 var(--accent-hue));
+  --accent-hover: oklch(0.58 0.16 var(--accent-hue));
+  --accent-soft: oklch(0.94 0.04 var(--accent-hue));
+  --accent-ink: oklch(0.34 0.08 var(--accent-hue));
+  --accent-contrast: #ffffff;
+
+  --row-h: 40px;
+  --row-pad-y: 10px;
+  --gap: 16px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+:root, [data-theme="light"] {
+  --bg: #f6f3ee;
+  --bg-raised: #fbfaf6;
+  --bg-sunken: #efece5;
+  --bg-hover: rgba(41, 32, 22, 0.04);
+  --bg-active: rgba(41, 32, 22, 0.07);
+
+  --ink: #1a1612;
+  --ink-2: #3a332a;
+  --ink-3: #6b6258;
+  --ink-4: #9a9086;
+  --ink-5: #c4bcb1;
+
+  --line: rgba(26, 22, 18, 0.09);
+  --line-2: rgba(26, 22, 18, 0.14);
+
+  --success: oklch(0.62 0.12 150);
+  --success-soft: oklch(0.94 0.04 150);
+  --warn: oklch(0.72 0.14 70);
+  --warn-soft: oklch(0.95 0.05 70);
+  --danger: oklch(0.58 0.17 25);
+  --danger-soft: oklch(0.94 0.04 25);
+  --info: oklch(0.62 0.11 240);
+  --info-soft: oklch(0.94 0.03 240);
+
+  --shadow-sm: 0 1px 0 rgba(26, 22, 18, 0.04), 0 1px 2px rgba(26, 22, 18, 0.04);
+  --shadow: 0 1px 0 rgba(26, 22, 18, 0.04), 0 6px 20px -6px rgba(26, 22, 18, 0.12);
+  --shadow-lg: 0 1px 0 rgba(26, 22, 18, 0.04), 0 24px 60px -12px rgba(26, 22, 18, 0.22);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #141210;
+  --bg-raised: #1c1a17;
+  --bg-sunken: #100e0c;
+  --bg-hover: rgba(255, 248, 238, 0.045);
+  --bg-active: rgba(255, 248, 238, 0.08);
+
+  --ink: #f4ede1;
+  --ink-2: #d8cfc1;
+  --ink-3: #9e9485;
+  --ink-4: #6b6358;
+  --ink-5: #3f3a32;
+
+  --line: rgba(255, 248, 238, 0.08);
+  --line-2: rgba(255, 248, 238, 0.14);
+
+  --accent: oklch(0.72 0.15 var(--accent-hue));
+  --accent-hover: oklch(0.78 0.16 var(--accent-hue));
+  --accent-soft: oklch(0.28 0.06 var(--accent-hue));
+  --accent-ink: oklch(0.86 0.08 var(--accent-hue));
+
+  --success: oklch(0.72 0.12 150);
+  --success-soft: oklch(0.24 0.05 150);
+  --warn: oklch(0.78 0.14 70);
+  --warn-soft: oklch(0.26 0.05 70);
+  --danger: oklch(0.70 0.17 25);
+  --danger-soft: oklch(0.26 0.05 25);
+  --info: oklch(0.72 0.11 240);
+  --info-soft: oklch(0.24 0.03 240);
+
+  --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 1px 0 rgba(0, 0, 0, 0.25), 0 24px 60px -12px rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+}
+
+[data-density="compact"] {
+  --row-h: 32px;
+  --row-pad-y: 6px;
+  --gap: 12px;
+}
+[data-density="comfy"] {
+  --row-h: 48px;
+  --row-pad-y: 14px;
+  --gap: 20px;
+}
+
+@keyframes bos-pulse { 0% { transform: scale(1); opacity: .35 } 100% { transform: scale(2.2); opacity: 0 } }
+@keyframes bos-fadein { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
+@keyframes bos-scanline { 0% { transform: translateY(-100%) } 50% { transform: translateY(100%) } 100% { transform: translateY(-100%) } }
+@keyframes bos-spin { to { transform: rotate(360deg) } }
+@keyframes bos-bump { 0% { transform: scale(1) } 40% { transform: scale(1.06) } 100% { transform: scale(1) } }
+@keyframes bos-slidein { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: none } }
