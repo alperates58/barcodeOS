@@ -31,7 +31,13 @@ RUN composer install \
 
 COPY . .
 
-RUN composer dump-autoload --optimize --no-dev --no-interaction
+RUN mkdir -p \
+        bootstrap/cache \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+    && chown -R www-data:www-data bootstrap/cache storage
 
 FROM node:22-bookworm-slim AS frontend
 
@@ -79,9 +85,14 @@ COPY . .
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 
-RUN mkdir -p storage bootstrap/cache \
-    && chown -R ${APP_USER}:${APP_GROUP} storage bootstrap/cache
+RUN mkdir -p \
+        bootstrap/cache \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+    && chown -R ${APP_USER}:${APP_GROUP} bootstrap/cache storage
 
 EXPOSE 3000
 
-CMD ["sh", "-lc", "if [ -z \"${APP_KEY:-}\" ]; then export APP_KEY=\"base64:$(php -r 'echo base64_encode(random_bytes(32));')\"; echo 'APP_KEY is missing in environment; using an in-memory fallback key for this container boot. Configure a persistent APP_KEY in Coolify for production.'; fi && php artisan config:cache && php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=3000"]
+CMD ["sh", "-lc", "mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && chown -R www-data:www-data bootstrap/cache storage && if [ -z \"${APP_KEY:-}\" ]; then export APP_KEY=\"base64:$(php -r 'echo base64_encode(random_bytes(32));')\"; echo 'APP_KEY is missing in environment; using an in-memory fallback key for this container boot. Configure a persistent APP_KEY in Coolify for production.'; fi && php artisan package:discover --ansi && php artisan config:cache && php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=3000"]
