@@ -1,0 +1,83 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: barcodeos-app
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - barcodeos
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: barcodeos-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - barcodeos
+
+  db:
+    image: postgres:16-alpine
+    container_name: barcodeos-db
+    environment:
+      POSTGRES_DB: barcodeos
+      POSTGRES_USER: barcodeos
+      POSTGRES_PASSWORD: barcodeos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - barcodeos
+
+  redis:
+    image: redis:7-alpine
+    container_name: barcodeos-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - barcodeos
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: barcodeos-queue
+    working_dir: /var/www/html
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - db
+      - redis
+    networks:
+      - barcodeos
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: barcodeos-mailpit
+    profiles:
+      - mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - barcodeos
+
+networks:
+  barcodeos:
+    driver: bridge
+
+volumes:
+  pgdata:

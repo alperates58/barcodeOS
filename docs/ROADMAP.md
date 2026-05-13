@@ -1,0 +1,116 @@
+# BarcodeOS Roadmap
+
+## Project Vision
+
+BarcodeOS is a standalone, global, subscription-based barcode generation SaaS platform.
+
+The product is designed to become a professional B2B platform for:
+
+- Admin-managed plans and feature entitlements
+- Barcode generation and history
+- Export controls
+- Bulk processing
+- API access
+- Multi-language content
+- Payment provider extensibility
+- Operational reporting
+
+Default product language: English.
+
+---
+
+## Current Strategic Priority
+
+Current priority:
+
+1. Finish SaaS admin foundation
+2. Complete plan-feature management UX
+3. Prepare subscription and usage administration
+4. Keep barcode catalog management admin-driven
+5. Delay real barcode rendering and billing flows until foundations are stable
+
+This means the roadmap still prioritizes business control, admin manageability and safe deployment over feature breadth.
+
+---
+
+## Current Status
+
+Recently completed:
+
+- Laravel 12 foundation
+- Inertia.js + React frontend foundation
+- Tailwind CSS foundation
+- Filament 5 admin panel
+- Docker local development stack
+- PostgreSQL-first environment example
+- Redis-ready queue/cache setup
+- Core SaaS models and migrations
+- Core seeders and tests
+- Initial Filament resources
+- Public landing, dashboard and pricing placeholders backed by database data
+- Safe Coolify-triggered system update page
+
+Current phase:
+
+Phase 1 - SaaS Admin Foundation
+
+Roadmap interpretation:
+
+- Phase 0 is complete
+- Phase 1 is active
+- Phase 2 and Phase 3 have structural groundwork, but remain incomplete
+
+---
+
+## Near-Term Roadmap
+
+### Phase 1: SaaS Admin Foundation
+
+Remaining target:
+
+- Role and permission management screens
+- Audit log resource
+- Admin dashboard summaries
+- Safer production admin access workflow
+
+### Phase 2: Plans, Features and Usage Limits
+
+Next build target:
+
+- Admin UX for plan-feature assignments
+- Subscription admin resource
+- Usage counter admin resource
+- Richer entitlement and usage summaries
+
+### Phase 3: Barcode Type and Parameter Management
+
+Foundation already exists:
+
+- Categories
+- Types
+- Parameters
+- Seeded initial catalog
+
+Next expansion:
+
+- Better parameter management UX
+- Deeper type documentation and validation admin tooling
+
+---
+
+## Guardrails
+
+Do not implement in the next step:
+
+- Real payment checkout
+- Barcode renderer integration
+- Bulk generation jobs
+- API barcode generation
+- Fake production billing screens
+
+Do implement in the next step:
+
+- Admin-manageable plan mapping
+- Usage administration
+- Safer admin operations
+- More complete reporting foundations
