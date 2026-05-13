@@ -10,25 +10,7 @@ class PlanResolverService
 {
     public function currentPlanFor(User $user): ?Plan
     {
-        $subscription = Subscription::query()
-            ->with('plan')
-            ->whereBelongsTo($user)
-            ->whereIn('status', ['active', 'trialing', 'past_due'])
-            ->where(function ($query): void {
-                $query
-                    ->whereNull('cancelled_at')
-                    ->orWhere('cancelled_at', '>', now());
-            })
-            ->where(function ($query): void {
-                $query
-                    ->whereNull('current_period_ends_at')
-                    ->orWhere('current_period_ends_at', '>=', now());
-            })
-            ->orderByDesc('current_period_ends_at')
-            ->orderByDesc('id')
-            ->first();
-
-        return $subscription?->plan ?? $this->defaultFreePlan();
+        return $this->activeSubscriptionFor($user)?->plan ?? $this->defaultFreePlan();
     }
 
     public function defaultFreePlan(): ?Plan
@@ -44,5 +26,16 @@ class PlanResolverService
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->first();
+    }
+
+    public function activeSubscriptionFor(User $user): ?Subscription
+    {
+        return $user->subscriptions()
+            ->with('plan')
+            ->paidPlan()
+            ->withinCurrentPeriod()
+            ->orderByDesc('current_period_ends_at')
+            ->orderByDesc('id')
+            ->first();
     }
 }

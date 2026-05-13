@@ -23,7 +23,7 @@ class UsageLimitService
             return true;
         }
 
-        $counter = $this->counterFor($user, $limitKey, $source, $limit);
+        $counter = $this->findCounterFor($user, $limitKey, $source);
 
         return $counter?->used < $limit;
     }
@@ -36,7 +36,7 @@ class UsageLimitService
             return null;
         }
 
-        $counter = $this->counterFor($user, $limitKey, $source, $limit);
+        $counter = $this->findCounterFor($user, $limitKey, $source);
 
         return max(0, $limit - (int) ($counter?->used ?? 0));
     }
@@ -45,16 +45,7 @@ class UsageLimitService
     {
         foreach ($this->usageKeysFor($featureKey, $source) as $limitKey) {
             $limit = $this->limitFor($user, $limitKey);
-
-            if ($limit === null) {
-                continue;
-            }
-
-            $counter = $this->counterFor($user, $limitKey, $source, $limit);
-
-            if (! $counter) {
-                continue;
-            }
+            $counter = $this->createOrUpdateCounterFor($user, $limitKey, $source, $limit);
 
             $counter->increment('used', $amount);
         }
@@ -77,7 +68,7 @@ class UsageLimitService
             };
 
             $limit = $this->limitFor($user, $limitKey);
-            $counter = $limit === null ? null : $this->counterFor($user, $limitKey, $source, $limit);
+            $counter = $this->findCounterFor($user, $limitKey, $source);
 
             $summary[$limitKey] = [
                 'limit' => $limit,
@@ -114,19 +105,42 @@ class UsageLimitService
     {
         $value = $this->entitlementService->value($user, $limitKey);
 
-        if (blank($value)) {
+        if ($value === null) {
+            return null;
+        }
+
+        if (! is_numeric($value)) {
             return null;
         }
 
         return (int) $value;
     }
 
-    protected function counterFor(User $user, string $limitKey, string $source, ?int $limit = null): ?UsageCounter
+    protected function findCounterFor(User $user, string $limitKey, string $source): ?UsageCounter
     {
         $window = $this->resolveWindow($limitKey);
 
         if (! $window) {
             return null;
+        }
+
+        [$periodType, $periodStart, $periodEnd] = $window;
+
+        return UsageCounter::query()
+            ->where('user_id', $user->id)
+            ->where('feature_key', $limitKey)
+            ->where('period_type', $periodType)
+            ->where('period_start', $periodStart)
+            ->where('source', $source)
+            ->first();
+    }
+
+    protected function createOrUpdateCounterFor(User $user, string $limitKey, string $source, ?int $limit = null): UsageCounter
+    {
+        $window = $this->resolveWindow($limitKey);
+
+        if (! $window) {
+            throw new \InvalidArgumentException("Unsupported usage limit key [{$limitKey}].");
         }
 
         [$periodType, $periodStart, $periodEnd] = $window;
@@ -142,7 +156,7 @@ class UsageLimitService
             ],
             [
                 'plan_id' => $plan?->id,
-                'period_end' => $periodEnd->toDateTimeString(),
+                'period_end' => $periodEnd,
                 'used' => 0,
                 'limit' => $limit,
                 'metadata' => [],
@@ -159,7 +173,11 @@ class UsageLimitService
             $changes['limit'] = $limit;
         }
 
-        if ($counter->period_end?->toDateTimeString() !== $periodEnd->toDateTimeString()) {
+        if ($limit === null && $counter->limit !== null) {
+            $changes['limit'] = null;
+        }
+
+        if (! $counter->period_end?->equalTo($periodEnd)) {
             $changes['period_end'] = $periodEnd;
         }
 
@@ -172,16 +190,18 @@ class UsageLimitService
 
     protected function resolveWindow(string $limitKey): ?array
     {
+        $now = CarbonImmutable::now();
+
         return match ($limitKey) {
             'daily_generation_limit' => [
                 'daily',
-                CarbonImmutable::now()->startOfDay(),
-                CarbonImmutable::now()->endOfDay(),
+                $now->startOfDay(),
+                $now->endOfDay(),
             ],
             'monthly_generation_limit', 'api_monthly_request_limit', 'bulk_monthly_job_limit' => [
                 'monthly',
-                CarbonImmutable::now()->startOfMonth(),
-                CarbonImmutable::now()->endOfMonth(),
+                $now->startOfMonth(),
+                $now->endOfMonth(),
             ],
             default => null,
         };

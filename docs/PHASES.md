@@ -15,6 +15,7 @@ Phase 1 - SaaS Admin Foundation
 Current focus:
 
 - Harden admin access and admin-manageable system foundations
+- Complete admin-manageable plan, entitlement and usage visibility foundations
 - Keep plans, features and barcode catalog ready for the next implementation phases
 - Prepare secure deployment operations without unsafe in-container shell execution
 
@@ -78,13 +79,19 @@ Completed in this cycle:
 - Audit log model and migration added
 - Safe System Update page added in admin
 - Coolify deploy trigger service added with audit logging and env validation
+- Plan, Feature, Subscription and UsageCounter relationships hardened for entitlement workflows
+- PlanResolverService now resolves only active/trialing paid subscriptions and falls back to Free safely
+- EntitlementService and UsageLimitService now support real plan feature reads with side-effect-free usage checks
+- Plan features are now managed directly from Plan edit via a relation manager
+- Read-only Usage Counter admin resource added for operational visibility
+- Authenticated dashboard now shows real current plan and usage summary data without fake analytics
 
 Still remaining for Phase 1:
 
 - Dedicated AuditLog Filament resource
 - Role and permission management UI
 - More admin dashboard widgets and operational summaries
-- Dedicated subscription and usage counter management screens
+- Dedicated subscription management screens
 - More granular admin policies and permissions
 
 ---
@@ -93,7 +100,7 @@ Still remaining for Phase 1:
 
 Prepared but not completed yet:
 
-- Phase 2 foundation exists at model, seeder and service level
+- Phase 2 foundation now exists at model, seeder, service and admin UX level for plans, entitlements and usage counters
 - Phase 3 foundation exists at model, seeder and admin resource level
 - Phase 6 pricing foundation exists at data model and public page level
 
@@ -109,9 +116,9 @@ Phase 2 - Plans, Features and Usage Limits
 
 Safe implementation target:
 
-- Add admin-manageable plan-feature assignment UX
-- Add subscription and usage counter admin resources
-- Expose entitlement and usage summaries in admin and dashboard
+- Add a dedicated Subscription admin resource with safe status visibility
+- Connect barcode type access and future export actions to entitlement checks
+- Expand usage summaries and reporting widgets with real usage counter queries
 - Add audit log resource and role/permission management pages
 
 ---

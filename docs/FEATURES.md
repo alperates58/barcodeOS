@@ -771,6 +771,7 @@ Expected behavior:
 - Resolve the user's active plan.
 - Check whether feature exists.
 - Check whether feature is enabled for plan.
+- Return `false` when the feature is unknown, inactive or disabled on the plan.
 - Return boolean or configured value.
 - Avoid hard-coded plan names.
 
@@ -794,8 +795,8 @@ Expected behavior:
 
 - Resolve correct usage period.
 - Resolve user's plan limit.
-- Check usage before operation.
-- Increment usage after successful operation.
+- Check usage before operation without creating a usage counter record.
+- Increment usage after successful operation and create/update usage counters only at that point.
 - Avoid incrementing failed validations.
 - Support web, api, bulk and admin sources.
 
@@ -896,6 +897,10 @@ Admin should be able to:
 - Set feature visibility
 - Set sort order
 
+Current implementation note:
+
+- Plan-feature assignments are managed from the `PlanResource` edit screen through a relation manager rather than a separate plan limits table.
+
 Admin should not need a developer to:
 
 - Change Free daily limit
@@ -953,16 +958,14 @@ Possible future feature keys:
 Current status:
 
 - Feature system design documented
-- Implementation pending
-- Seed data pending
-- EntitlementService pending
-- UsageLimitService pending
-- Admin resources pending
+- Core plans, features, plan_features and usage_counters are implemented and seeded
+- EntitlementService, PlanResolverService and UsageLimitService are implemented and test-covered
+- Plan-feature assignments are manageable from admin
+- Usage counters are visible from a read-only admin resource
+- Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:
 
-- Create feature, plan, plan_feature and usage_counter models/migrations.
-- Seed default plans and features.
-- Create EntitlementService.
-- Create UsageLimitService.
-- Create initial Filament resources.
+- Add subscription administration screens.
+- Enforce feature checks in barcode/export workflows as later phases activate.
+- Expand usage reporting and entitlement-driven UI messaging.

@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Plans;
 
-use App\Filament\Resources\Plans\Pages\ManagePlans;
+use App\Filament\Resources\Plans\Pages\CreatePlan;
+use App\Filament\Resources\Plans\Pages\EditPlan;
+use App\Filament\Resources\Plans\Pages\ListPlans;
+use App\Filament\Resources\Plans\RelationManagers\PlanFeaturesRelationManager;
 use App\Models\Plan;
 use BackedEnum;
 use Filament\Actions\EditAction;
@@ -68,6 +71,11 @@ class PlanResource extends Resource
                     ->label('Monthly')
                     ->formatStateUsing(fn ($state, Plan $record) => number_format((float) $state, 2).' '.$record->currency)
                     ->sortable(),
+                TextColumn::make('yearly_price')
+                    ->label('Yearly')
+                    ->formatStateUsing(fn ($state, Plan $record) => number_format((float) $state, 2).' '.$record->currency)
+                    ->sortable(),
+                TextColumn::make('currency')->badge(),
                 TextColumn::make('trial_days')->sortable(),
                 IconColumn::make('is_public')->boolean()->label('Public'),
                 IconColumn::make('is_active')->boolean()->label('Active'),
@@ -82,10 +90,19 @@ class PlanResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            PlanFeaturesRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => ManagePlans::route('/'),
+            'index' => ListPlans::route('/'),
+            'create' => CreatePlan::route('/create'),
+            'edit' => EditPlan::route('/{record}/edit'),
         ];
     }
 }

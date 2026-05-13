@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Subscription extends Model
 {
     use HasFactory;
+
+    public const PAID_PLAN_STATUSES = [
+        'active',
+        'trialing',
+    ];
 
     protected $fillable = [
         'user_id',
@@ -44,5 +50,37 @@ class Subscription extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
+    }
+
+    public function scopePaidPlan(Builder $query): Builder
+    {
+        return $query->whereIn('status', self::PAID_PLAN_STATUSES);
+    }
+
+    public function scopeWithinCurrentPeriod(Builder $query): Builder
+    {
+        $now = now();
+
+        return $query
+            ->where(function (Builder $query) use ($now): void {
+                $query
+                    ->whereNull('current_period_starts_at')
+                    ->orWhere('current_period_starts_at', '<=', $now);
+            })
+            ->where(function (Builder $query) use ($now): void {
+                $query
+                    ->whereNull('current_period_ends_at')
+                    ->orWhere('current_period_ends_at', '>=', $now);
+            })
+            ->where(function (Builder $query) use ($now): void {
+                $query
+                    ->whereNull('cancelled_at')
+                    ->orWhere('cancelled_at', '>', $now);
+            });
+    }
+
+    public static function paidPlanStatuses(): array
+    {
+        return self::PAID_PLAN_STATUSES;
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use LogicException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Feature extends Model
@@ -30,8 +32,24 @@ class Feature extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Feature $feature): void {
+            if ($feature->planFeatures()->exists()) {
+                throw new LogicException('Cannot delete a feature that is assigned to one or more plans.');
+            }
+        });
+    }
+
     public function planFeatures(): HasMany
     {
         return $this->hasMany(PlanFeature::class);
+    }
+
+    public function plans(): BelongsToMany
+    {
+        return $this->belongsToMany(Plan::class, 'plan_features')
+            ->withPivot(['enabled', 'value', 'limit_value', 'metadata'])
+            ->withTimestamps();
     }
 }

@@ -49,6 +49,10 @@ Recently completed:
 - Initial Filament resources
 - Public landing, dashboard and pricing placeholders backed by database data
 - Safe Coolify-triggered system update page
+- Plan-feature relation manager inside the plan admin workflow
+- Read-only usage counter resource for admin visibility
+- Hardened entitlement, plan resolution and usage summary services
+- Dashboard usage cards now backed by real usage counter summaries
 
 Current phase:
 
@@ -72,15 +76,16 @@ Remaining target:
 - Audit log resource
 - Admin dashboard summaries
 - Safer production admin access workflow
+- Dedicated subscription administration screens
 
 ### Phase 2: Plans, Features and Usage Limits
 
 Next build target:
 
-- Admin UX for plan-feature assignments
 - Subscription admin resource
-- Usage counter admin resource
 - Richer entitlement and usage summaries
+- Barcode type and export entitlement enforcement in upcoming workflows
+- Usage reporting widgets driven by real counters
 
 ### Phase 3: Barcode Type and Parameter Management
 

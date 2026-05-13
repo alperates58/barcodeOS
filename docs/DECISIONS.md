@@ -793,6 +793,38 @@ Docker and setup docs explicitly describe both modes.
 
 ---
 
+## ADR-0024: Plan Features Stay In `plan_features`, And Usage Reads Are Side-Effect Free
+
+Date: 2026-05-13
+Status: Accepted
+
+### Context
+
+Phase 1 needed safer plan-feature management and reliable usage visibility without introducing extra tables or generating misleading usage rows during read-only checks.
+
+### Decision
+
+Plan feature assignments will continue to be managed through the existing `plan_features` table.
+
+The admin UI manages these assignments from the `PlanResource` edit screen via a relation manager.
+
+`UsageLimitService::canUse()` and `UsageLimitService::remaining()` must remain read-only.
+
+Only `UsageLimitService::increment()` may create or update `usage_counters` rows.
+
+### Reasoning
+
+This keeps the data model small, keeps plan access admin-manageable in one place, and prevents dashboards or validation checks from creating fake usage records.
+
+### Consequences
+
+- No new `plan_limits` table is introduced in this phase
+- `plan_features` remains the source of truth for boolean entitlements and numeric limits
+- Usage counter rows represent real successful usage increments, not page visits or pre-checks
+- Admin users manage plan assignments from the plan editing workflow instead of a detached screen
+
+---
+
 ## Future Decisions To Add
 
 The following decisions are not final yet and should be documented later:

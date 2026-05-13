@@ -37,7 +37,12 @@ class FeatureResource extends Resource
             ->components([
                 Section::make('Feature details')
                     ->schema([
-                        TextInput::make('key')->required()->unique(ignoreRecord: true)->maxLength(255),
+                        TextInput::make('key')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255)
+                            ->disabledOn('edit')
+                            ->helperText('Feature keys are stable system identifiers and cannot be changed after creation.'),
                         TextInput::make('name')->required()->maxLength(255),
                         TextInput::make('category')->maxLength(255),
                         Select::make('value_type')
@@ -45,9 +50,8 @@ class FeatureResource extends Resource
                             ->default('boolean')
                             ->options([
                                 'boolean' => 'Boolean',
-                                'limit' => 'Limit',
-                                'string' => 'String',
                                 'integer' => 'Integer',
+                                'string' => 'String',
                                 'json' => 'JSON',
                             ]),
                         Textarea::make('description')->rows(3)->columnSpanFull(),
@@ -77,9 +81,8 @@ class FeatureResource extends Resource
                 SelectFilter::make('value_type')
                     ->options([
                         'boolean' => 'Boolean',
-                        'limit' => 'Limit',
-                        'string' => 'String',
                         'integer' => 'Integer',
+                        'string' => 'String',
                         'json' => 'JSON',
                     ]),
                 TernaryFilter::make('is_active'),

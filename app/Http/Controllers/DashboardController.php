@@ -45,10 +45,6 @@ class DashboardController extends Controller
             ] : null,
             'usageSummary' => $usage,
             'recentBarcodes' => $recentBarcodes,
-            'stats' => [
-                'generated_count' => GeneratedBarcode::query()->whereBelongsTo($user)->count(),
-                'export_count' => $user->barcodeExports()->count(),
-            ],
         ]);
     }
 }
