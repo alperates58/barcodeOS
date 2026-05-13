@@ -1,4 +1,6 @@
 (function () {
+    const params = new URLSearchParams(window.location.search);
+    const currentView = params.get('view') || 'generator';
     const table = document.getElementById('resultTable');
     const previewCanvas = document.getElementById('previewCanvas');
     const emptyPreview = document.getElementById('emptyPreview');
@@ -8,7 +10,7 @@
     const downloadErrorCsv = document.getElementById('downloadErrorCsv');
     const pdfPerPage = document.getElementById('pdfPerPage');
     const barcodeType = document.getElementById('barcodeType');
-    const navButtons = document.querySelectorAll('.sym-sublist button[data-bcid]');
+    const navButtons = document.querySelectorAll('button[data-bcid]');
     const symGroupToggles = document.querySelectorAll('.sym-group-toggle');
     const symbologyToggle = document.getElementById('symbologyToggle');
     const symbologyList = document.getElementById('symbologyList');
@@ -18,6 +20,155 @@
     const lineCount = document.getElementById('lineCount');
     const sampleDataBtn = document.getElementById('sampleDataBtn');
     const clearInputBtn = document.getElementById('clearInputBtn');
+    const workspaceViewContent = {
+        jobs: {
+            eyebrow: 'Batch Jobs',
+            title: 'Batch jobs queue',
+            description: 'Monitor uploads, queue progress, export packages and recovery status for large production runs.',
+            cards: [
+                ['Queue intake', 'Upload CSV or TXT batches, validate rows before processing and track acceptance in one place.'],
+                ['Runtime visibility', 'Operators can review pending, processing and failed jobs without leaving the workspace.'],
+                ['Recovery flow', 'Retry failed runs, download valid subsets and keep the line moving during peak volume.'],
+            ],
+            tableTitle: 'Recent batch jobs',
+            tableAction: 'New batch upload',
+            rowAction: 'Retry job',
+        },
+        history: {
+            eyebrow: 'History',
+            title: 'Generation history',
+            description: 'Review previous barcode exports, reopen successful runs and track what was delivered to operations teams.',
+            cards: [
+                ['Searchable records', 'Locate prior jobs by barcode type, date and export format when teams ask for a resend.'],
+                ['Operator audit', 'Keep a clean timeline of generated labels, row counts and download actions.'],
+                ['Fast recovery', 'Reopen recent outputs instead of regenerating the same asset package from scratch.'],
+            ],
+            tableTitle: 'Recent exports',
+            tableAction: 'Export history CSV',
+            rowAction: 'Open package',
+        },
+        validation: {
+            eyebrow: 'Validation Reports',
+            title: 'Validation reports',
+            description: 'Track invalid rows, formatting mismatches and GS1 normalization issues before they hit production.',
+            cards: [
+                ['Error spotting', 'See invalid data patterns early and keep bad rows out of print and shipment workflows.'],
+                ['GS1 readiness', 'Normalization and compliance notes help teams fix structured data faster.'],
+                ['Downloadable reports', 'Share CSV-based issue lists with support, packaging or ERP teams.'],
+            ],
+            tableTitle: 'Recent validation runs',
+            tableAction: 'Export issue report',
+            rowAction: 'View errors',
+        },
+        templates: {
+            eyebrow: 'Templates',
+            title: 'Saved templates',
+            description: 'Store repeatable barcode presets for packaging lines, retailer requirements and internal labeling standards.',
+            cards: [
+                ['Preset stacks', 'Save symbology, scale and export preferences for recurring production jobs.'],
+                ['Team consistency', 'Give every operator the same output rules across shifts and workstations.'],
+                ['Faster launch', 'Start from a known-good template instead of rebuilding settings every time.'],
+            ],
+            tableTitle: 'Template activity',
+            tableAction: 'Create template',
+            rowAction: 'Use template',
+        },
+        api: {
+            eyebrow: 'API Keys',
+            title: 'API access and webhooks',
+            description: 'Manage machine-to-machine access, webhook delivery and usage posture for integrated barcode workflows.',
+            cards: [
+                ['API credentials', 'Issue environment-specific keys for ERP, WMS and automation pipelines.'],
+                ['Webhook events', 'Notify downstream systems when batch jobs complete, fail or need review.'],
+                ['Audit posture', 'Track integration usage and keep operational access scoped and visible.'],
+            ],
+            tableTitle: 'Integration activity',
+            tableAction: 'Create API key',
+            rowAction: 'Rotate key',
+        },
+        team: {
+            eyebrow: 'Team Members',
+            title: 'Team and permissions',
+            description: 'Control who can generate, export, manage integrations and review billing inside the workspace.',
+            cards: [
+                ['Role-based access', 'Separate operator, manager and admin capabilities across the product surface.'],
+                ['Shared workspace', 'Keep branding, templates and export history aligned across the whole team.'],
+                ['Operational handoff', 'Make shift changes easier with consistent access and visible ownership.'],
+            ],
+            tableTitle: 'Member activity',
+            tableAction: 'Invite member',
+            rowAction: 'Manage role',
+        },
+        settings: {
+            eyebrow: 'Settings',
+            title: 'Workspace settings',
+            description: 'Configure workspace defaults, export behavior and account-level preferences for daily barcode operations.',
+            cards: [
+                ['Generation defaults', 'Set default symbologies, output scale and PDF behavior for faster operator setup.'],
+                ['Branding and company', 'Manage company profile, white-label settings and support contact details.'],
+                ['Workflow preferences', 'Control how teams handle validation, downloads and repeated production tasks.'],
+            ],
+            tableTitle: 'Settings change history',
+            tableAction: 'Save preferences',
+            rowAction: 'Review',
+        },
+        support: {
+            eyebrow: 'Support',
+            title: 'Support center',
+            description: 'Help operators resolve barcode issues quickly with guided support, status visibility and documentation links.',
+            cards: [
+                ['Guided troubleshooting', 'Surface common fixes for invalid rows, export issues and batch processing interruptions.'],
+                ['Priority support', 'Route urgent operational blockers with the right context attached.'],
+                ['Team handoff', 'Give support and operations a shared view of the same recent runs and error patterns.'],
+            ],
+            tableTitle: 'Recent support-related activity',
+            tableAction: 'Contact support',
+            rowAction: 'Open case',
+        },
+    };
+
+    function applyWorkspaceViewContent() {
+        const content = workspaceViewContent[currentView];
+        if (!content) {
+            return;
+        }
+
+        const pageHead = document.querySelector('.page-head');
+        const cards = document.querySelectorAll('.placeholder-grid .card');
+        const tableCard = document.querySelector('.table-card');
+        if (!pageHead || !cards.length || !tableCard) {
+            return;
+        }
+
+        const eyebrow = pageHead.querySelector('.eyebrow');
+        const title = pageHead.querySelector('h1');
+        const description = pageHead.querySelector('p:not(.eyebrow)');
+        if (eyebrow) eyebrow.textContent = content.eyebrow;
+        if (title) title.textContent = content.title;
+        if (description) description.textContent = content.description;
+
+        cards.forEach((card, index) => {
+            const cardContent = content.cards[index];
+            if (!cardContent) {
+                return;
+            }
+            const cardTitle = card.querySelector('h2');
+            const cardText = card.querySelector('p');
+            if (cardTitle) cardTitle.textContent = cardContent[0];
+            if (cardText) cardText.textContent = cardContent[1];
+        });
+
+        const tableTitle = tableCard.querySelector('.card-head h2');
+        const tableAction = tableCard.querySelector('.card-head .btn');
+        const rowButtons = tableCard.querySelectorAll('.mini-btn');
+        if (tableTitle) tableTitle.textContent = content.tableTitle;
+        if (tableAction) tableAction.textContent = content.tableAction;
+        rowButtons.forEach((button) => {
+            button.textContent = content.rowAction;
+        });
+    }
+
+    applyWorkspaceViewContent();
 
     function countDataLines(value) {
         return String(value || '')
@@ -46,27 +197,42 @@
         URL.revokeObjectURL(url);
     }
 
+    function syncBarcodeButtons(value) {
+        navButtons.forEach((item) => {
+            item.classList.toggle('active', (item.dataset.bcid || '') === value);
+        });
+    }
+
     navButtons.forEach((button) => {
         button.addEventListener('click', () => {
+            const nextValue = button.dataset.bcid || barcodeType?.value || '';
+
             if (!barcodeType) {
                 const target = new URL('index.php', window.location.href);
                 target.searchParams.set('view', 'generator');
-                target.searchParams.set('barcode_type', button.dataset.bcid || '');
+                target.searchParams.set('barcode_type', nextValue);
                 window.location.href = target.toString();
                 return;
             }
 
-            barcodeType.value = button.dataset.bcid || barcodeType.value;
-            navButtons.forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
+            barcodeType.value = nextValue;
+            syncBarcodeButtons(nextValue);
             if (!document.querySelector('.generator-grid')) {
                 const target = new URL('index.php', window.location.href);
                 target.searchParams.set('view', 'generator');
-                target.searchParams.set('barcode_type', button.dataset.bcid || barcodeType.value);
+                target.searchParams.set('barcode_type', nextValue);
                 window.location.href = target.toString();
             }
         });
     });
+
+    barcodeType?.addEventListener('change', () => {
+        syncBarcodeButtons(barcodeType.value);
+    });
+
+    if (barcodeType) {
+        syncBarcodeButtons(barcodeType.value);
+    }
 
     symGroupToggles.forEach((button) => {
         button.addEventListener('click', () => {

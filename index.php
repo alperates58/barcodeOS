@@ -17,7 +17,7 @@ $settings = Settings::all();
 $results = [];
 $summary = null;
 $posted = $_SERVER['REQUEST_METHOD'] === 'POST';
-$view = $posted ? 'generator' : ($_GET['view'] ?? 'dashboard');
+$view = $posted ? 'generator' : ($_GET['view'] ?? 'generator');
 $allowedViews = ['dashboard', 'generator', 'jobs', 'history', 'validation', 'templates', 'api', 'billing', 'team', 'settings', 'support'];
 if (!in_array($view, $allowedViews, true)) {
     $view = 'dashboard';
@@ -204,6 +204,134 @@ $topTypes = [
     ['name' => 'QR Code', 'value' => 14],
 ];
 
+$heroStats = [
+    ['value' => '< 30 sec', 'label' => 'from input to downloadable output'],
+    ['value' => '50+', 'label' => 'symbologies ready for production'],
+    ['value' => 'PNG / ZIP / PDF', 'label' => 'export stack for ops teams'],
+];
+
+$featuredTypes = [
+    ['value' => 'gs1datamatrix', 'label' => 'GS1 DataMatrix', 'meta' => 'Retail and pharma serialization'],
+    ['value' => 'code128', 'label' => 'Code 128', 'meta' => 'Warehouse and logistics labels'],
+    ['value' => 'qrcode', 'label' => 'QR Code', 'meta' => 'Consumer scans and redirects'],
+    ['value' => 'ean13', 'label' => 'EAN-13', 'meta' => 'Shelf-ready packaging'],
+];
+
+$productHighlights = [
+    ['title' => 'Operator-friendly studio', 'text' => 'One clean flow for paste, upload, validate and export without hunting through a dashboard.'],
+    ['title' => 'Built for premium workflows', 'text' => 'Demo credits, batch readiness, API posture and validation live in the same surface.'],
+    ['title' => 'Fast onboarding', 'text' => 'New users can start with sample data and switch symbologies in one click.'],
+];
+
+$workspaceViews = [
+    'jobs' => [
+        'eyebrow' => 'Batch Jobs',
+        'title' => 'Batch jobs queue',
+        'description' => 'Monitor uploads, queue progress, export packages and recovery status for large production runs.',
+        'cards' => [
+            ['title' => 'Queue intake', 'text' => 'Upload CSV or TXT batches, validate rows before processing and track acceptance in one place.'],
+            ['title' => 'Runtime visibility', 'text' => 'Operators can review pending, processing and failed jobs without leaving the workspace.'],
+            ['title' => 'Recovery flow', 'text' => 'Retry failed runs, download valid subsets and keep the line moving during peak volume.'],
+        ],
+        'tableTitle' => 'Recent batch jobs',
+        'tableAction' => 'New batch upload',
+        'tableButton' => 'Retry job',
+    ],
+    'history' => [
+        'eyebrow' => 'History',
+        'title' => 'Generation history',
+        'description' => 'Review previous barcode exports, reopen successful runs and track what was delivered to operations teams.',
+        'cards' => [
+            ['title' => 'Searchable records', 'text' => 'Locate prior jobs by barcode type, date and export format when teams ask for a resend.'],
+            ['title' => 'Operator audit', 'text' => 'Keep a clean timeline of generated labels, row counts and download actions.'],
+            ['title' => 'Fast recovery', 'text' => 'Reopen recent outputs instead of regenerating the same asset package from scratch.'],
+        ],
+        'tableTitle' => 'Recent exports',
+        'tableAction' => 'Export history CSV',
+        'tableButton' => 'Open package',
+    ],
+    'validation' => [
+        'eyebrow' => 'Validation Reports',
+        'title' => 'Validation reports',
+        'description' => 'Track invalid rows, formatting mismatches and GS1 normalization issues before they hit production.',
+        'cards' => [
+            ['title' => 'Error spotting', 'text' => 'See invalid data patterns early and keep bad rows out of print and shipment workflows.'],
+            ['title' => 'GS1 readiness', 'text' => 'Normalization and compliance notes help teams fix structured data faster.'],
+            ['title' => 'Downloadable reports', 'text' => 'Share CSV-based issue lists with support, packaging or ERP teams.'],
+        ],
+        'tableTitle' => 'Recent validation runs',
+        'tableAction' => 'Export issue report',
+        'tableButton' => 'View errors',
+    ],
+    'templates' => [
+        'eyebrow' => 'Templates',
+        'title' => 'Saved templates',
+        'description' => 'Store repeatable barcode presets for packaging lines, retailer requirements and internal labeling standards.',
+        'cards' => [
+            ['title' => 'Preset stacks', 'text' => 'Save symbology, scale and export preferences for recurring production jobs.'],
+            ['title' => 'Team consistency', 'text' => 'Give every operator the same output rules across shifts and workstations.'],
+            ['title' => 'Faster launch', 'text' => 'Start from a known-good template instead of rebuilding settings every time.'],
+        ],
+        'tableTitle' => 'Template activity',
+        'tableAction' => 'Create template',
+        'tableButton' => 'Use template',
+    ],
+    'api' => [
+        'eyebrow' => 'API Keys',
+        'title' => 'API access and webhooks',
+        'description' => 'Manage machine-to-machine access, webhook delivery and usage posture for integrated barcode workflows.',
+        'cards' => [
+            ['title' => 'API credentials', 'text' => 'Issue environment-specific keys for ERP, WMS and automation pipelines.'],
+            ['title' => 'Webhook events', 'text' => 'Notify downstream systems when batch jobs complete, fail or need review.'],
+            ['title' => 'Audit posture', 'text' => 'Track integration usage and keep operational access scoped and visible.'],
+        ],
+        'tableTitle' => 'Integration activity',
+        'tableAction' => 'Create API key',
+        'tableButton' => 'Rotate key',
+    ],
+    'team' => [
+        'eyebrow' => 'Team Members',
+        'title' => 'Team and permissions',
+        'description' => 'Control who can generate, export, manage integrations and review billing inside the workspace.',
+        'cards' => [
+            ['title' => 'Role-based access', 'text' => 'Separate operator, manager and admin capabilities across the product surface.'],
+            ['title' => 'Shared workspace', 'text' => 'Keep branding, templates and export history aligned across the whole team.'],
+            ['title' => 'Operational handoff', 'text' => 'Make shift changes easier with consistent access and visible ownership.'],
+        ],
+        'tableTitle' => 'Member activity',
+        'tableAction' => 'Invite member',
+        'tableButton' => 'Manage role',
+    ],
+    'settings' => [
+        'eyebrow' => 'Settings',
+        'title' => 'Workspace settings',
+        'description' => 'Configure workspace defaults, export behavior and account-level preferences for daily barcode operations.',
+        'cards' => [
+            ['title' => 'Generation defaults', 'text' => 'Set default symbologies, output scale and PDF behavior for faster operator setup.'],
+            ['title' => 'Branding and company', 'text' => 'Manage company profile, white-label settings and support contact details.'],
+            ['title' => 'Workflow preferences', 'text' => 'Control how teams handle validation, downloads and repeated production tasks.'],
+        ],
+        'tableTitle' => 'Settings change history',
+        'tableAction' => 'Save preferences',
+        'tableButton' => 'Review',
+    ],
+    'support' => [
+        'eyebrow' => 'Support',
+        'title' => 'Support center',
+        'description' => 'Help operators resolve barcode issues quickly with guided support, status visibility and documentation links.',
+        'cards' => [
+            ['title' => 'Guided troubleshooting', 'text' => 'Surface common fixes for invalid rows, export issues and batch processing interruptions.'],
+            ['title' => 'Priority support', 'text' => 'Route urgent operational blockers with the right context attached.'],
+            ['title' => 'Team handoff', 'text' => 'Give support and operations a shared view of the same recent runs and error patterns.'],
+        ],
+        'tableTitle' => 'Recent support-related activity',
+        'tableAction' => 'Contact support',
+        'tableButton' => 'Open case',
+    ],
+];
+
+$workspaceConfig = $workspaceViews[$view] ?? null;
+
 $invalidResults = array_values(array_filter($results, fn(array $row): bool => !$row['success']));
 ?>
 <!doctype html>
@@ -220,7 +348,7 @@ $invalidResults = array_values(array_filter($results, fn(array $row): bool => !$
 <body data-pdf-size="<?= e((string)$settings['pdf_size_mm']) ?>" data-pdf-margin="<?= e((string)$settings['pdf_margin_mm']) ?>">
     <div class="saas-shell">
         <aside class="sidebar">
-            <a class="brand-block" href="?view=dashboard">
+            <a class="brand-block" href="?view=generator">
                 <span class="brand-mark">DM</span>
                 <span>
                     <strong><?= e($settings['app_name']) ?></strong>
@@ -230,7 +358,7 @@ $invalidResults = array_values(array_filter($results, fn(array $row): bool => !$
 
             <nav class="main-menu" aria-label="SaaS menüsü">
                 <?php foreach ($mainMenu as $key => $label): ?>
-                    <a class="<?= $view === $key ? 'active' : '' ?>" href="<?= ($key === 'admin' || $key === 'settings') ? 'admin.php' : '?view=' . e($key) ?>">
+                    <a class="<?= $view === $key ? 'active' : '' ?>" href="<?= $key === 'admin' ? 'admin.php' : '?view=' . e($key) ?>">
                         <span><?= e(substr($label, 0, 1)) ?></span><?= e($label) ?>
                     </a>
                 <?php endforeach; ?>
@@ -377,16 +505,60 @@ $invalidResults = array_values(array_filter($results, fn(array $row): bool => !$
                         </article>
                     </section>
                 <?php elseif ($view === 'generator'): ?>
-                    <section class="page-head generator-head">
-                        <div>
-                            <p class="eyebrow">Barcode Generator</p>
-                            <h1><?= e($selectedLabel) ?> generation</h1>
-                            <p>Paste text, upload TXT/CSV files, validate rows and download outputs as PNG, ZIP or square PDF.</p>
+                    <section class="generator-launch">
+                        <div class="launch-copy">
+                            <p class="eyebrow">BarcodeOS Studio</p>
+                            <h1>Generate production-ready barcodes from the first screen</h1>
+                            <p>Open the product and start creating immediately. Choose a symbology, paste data or upload a file, then export clean outputs for operations, packaging and API-driven teams.</p>
+                            <div class="launch-actions">
+                                <a class="btn primary" href="#generatorStudio">Start generating</a>
+                                <button class="btn secondary" type="button" id="sampleDataBtn">Use sample data</button>
+                                <button class="btn outline" type="button" id="clearInputBtn">Clear</button>
+                            </div>
+                            <div class="launch-stats">
+                                <?php foreach ($heroStats as $stat): ?>
+                                    <article>
+                                        <strong><?= e($stat['value']) ?></strong>
+                                        <span><?= e($stat['label']) ?></span>
+                                    </article>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="featured-types" aria-label="Popular barcode types">
+                                <?php foreach ($featuredTypes as $type): ?>
+                                    <button type="button" class="featured-type <?= $selectedBarcode === $type['value'] ? 'active' : '' ?>" data-bcid="<?= e($type['value']) ?>">
+                                        <strong><?= e($type['label']) ?></strong>
+                                        <span><?= e($type['meta']) ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
-                        <div class="head-actions">
-                            <button class="btn secondary" type="button" id="sampleDataBtn">Insert Sample</button>
-                            <button class="btn outline" type="button" id="clearInputBtn">Clear</button>
-                        </div>
+
+                        <aside class="launch-panel">
+                            <div class="launch-panel-head">
+                                <span class="panel-kicker">Current workspace mode</span>
+                                <strong><?= e($selectedLabel) ?></strong>
+                                <p>Designed like a premium SaaS tool: focused entry point, clear limits, fast actions and no fake dashboard friction before the user can create.</p>
+                            </div>
+                            <div class="launch-panel-list">
+                                <div>
+                                    <span>Credits</span>
+                                    <strong><?= $signedIn ? 'Unlimited session' : e((string)$demoRemaining) . ' / ' . e((string)$demoLimit) . ' demo left' ?></strong>
+                                </div>
+                                <div>
+                                    <span>Validation</span>
+                                    <strong><?= e((string)$successRate) ?>% success benchmark</strong>
+                                </div>
+                                <div>
+                                    <span>Exports</span>
+                                    <strong>Instant PNG, ZIP and PDF bundles</strong>
+                                </div>
+                            </div>
+                            <div class="launch-proof">
+                                <?php foreach ($settings['trust_badges'] as $badge): ?>
+                                    <span><?= e($badge) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        </aside>
                     </section>
 
                     <?php if (!$signedIn): ?>
@@ -405,7 +577,16 @@ $invalidResults = array_values(array_filter($results, fn(array $row): bool => !$
                         </div>
                     <?php endif; ?>
 
-                    <form method="post" action="?view=generator" enctype="multipart/form-data" class="generator-grid">
+                    <section class="product-highlights">
+                        <?php foreach ($productHighlights as $highlight): ?>
+                            <article>
+                                <strong><?= e($highlight['title']) ?></strong>
+                                <p><?= e($highlight['text']) ?></p>
+                            </article>
+                        <?php endforeach; ?>
+                    </section>
+
+                    <form method="post" action="?view=generator" enctype="multipart/form-data" class="generator-grid" id="generatorStudio">
                         <section class="generator-main">
                             <article class="card data-card">
                                 <div class="card-head">

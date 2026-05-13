@@ -1,0 +1,46 @@
+services:
+  web:
+    image: php:8.2-apache
+    container_name: barcodeos_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+    command: >
+      bash -c "docker-php-ext-install pdo pdo_mysql mysqli
+      && a2enmod rewrite
+      && apache2-foreground"
+
+  mysql:
+    image: mysql:8.0
+    container_name: barcodeos_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: barcodeos
+      MYSQL_USER: barcodeos
+      MYSQL_PASSWORD: barcodeos123
+    ports:
+      - "3307:3306"
+    volumes:
+      - barcodeos_mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: barcodeos_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: barcodeos
+      PMA_PASSWORD: barcodeos123
+    depends_on:
+      - mysql
+
+volumes:
+  barcodeos_mysql_data:
