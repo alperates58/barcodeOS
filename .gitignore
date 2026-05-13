@@ -11,6 +11,7 @@
 /.vscode
 /.zed
 /.codex-tmp
+/Dockerfile.backup
 /bootstrap/ssr
 /bootstrap/cache/*.php
 /node_modules
