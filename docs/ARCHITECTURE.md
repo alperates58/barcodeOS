@@ -436,6 +436,12 @@ Barcode types should include fields such as:
 - seo_description
 - sort_order
 
+Architecture direction:
+
+- barcode types are database-driven records, not separate Laravel modules
+- barcode behavior should expand through shared services plus category-based renderer and validator strategies
+- GS1-specific parsing may later plug into the validation layer through a dedicated parser integration point, but no parser implementation is part of the current phase
+
 Barcode parameters should include fields such as:
 
 - barcode_type_id
@@ -494,6 +500,13 @@ BarcodeValidationService:
 - Validates barcode input.
 - Validates barcode type rules.
 - Validates dynamic parameters.
+- Runs before rendering only.
+- Ignores unknown parameters safely during normalization.
+- Does not render or export output.
+- Does not store barcode history or files.
+- Does not create `usage_counters`.
+- Does not create `generated_barcodes` or `barcode_exports`.
+- Does not increment usage.
 
 BarcodeRendererService:
 
@@ -510,11 +523,14 @@ BarcodeTypeRegistry:
 
 - Maps database barcode type records to supported renderer implementations.
 - Allows expansion over time.
+- Should favor shared service orchestration with category-based renderer and validator resolution rather than separate Laravel modules per barcode type.
+- May later expose a GS1 parser integration point for GS1-family validation, without requiring the parser to exist yet.
 
 Current foundation note:
 
 - `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
 - it does not render, export, store files or increment usage
+- `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
 
 ---
 
@@ -868,7 +884,20 @@ resources/js/
     Api/
     Bulk/
     Settings/
+  features/
+    barcode/
+      components/
+      hooks/
+      pages/
+      services/
+      types/
 ```
+
+Frontend barcode direction:
+
+- future barcode UI work should follow a responsive feature-based structure under `resources/js/features/barcode/`
+- do not split barcode UI into a separate `mobile` folder
+- responsive behavior should be handled within shared feature components and layouts
 
 Important components:
 

@@ -800,6 +800,13 @@ Expected behavior:
 - Avoid incrementing failed validations.
 - Support web, api, bulk and admin sources.
 
+Validation boundary note:
+
+- pre-render validation must remain side-effect-free
+- validation must not create `usage_counters`
+- validation must not create `generated_barcodes` or `barcode_exports`
+- unknown parameters should be ignored safely unless a barcode type explicitly promotes them into supported schema later
+
 ---
 
 ## 10. Barcode Feature Access
@@ -832,6 +839,7 @@ Current implementation note:
 - `App\Services\Barcode\BarcodeAccessService` now evaluates barcode type access through `EntitlementService`
 - `barcode.generate` is always treated as the base required feature, even when a barcode type has no explicit `required_features`
 - multiple `required_features` are enforced with AND logic
+- barcode types remain database-driven records, not separate Laravel modules
 
 ---
 
@@ -976,11 +984,14 @@ Current status:
 - Subscription visibility is available in a read-only admin-safe Filament resource
 - Plan-feature assignments are manageable from admin
 - Usage counters are visible from a read-only admin resource
+- BarcodeValidationService exists as a pre-render-only validation layer
 - BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
+- Validation currently ignores unknown parameters safely and does not render, export, persist history/files or increment usage
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:
 
 - Expand safe subscription administration visibility as needed.
 - Enforce feature checks in barcode/export workflows as later phases activate.
+- Introduce shared barcode rendering and validation expansion points by category instead of separate Laravel modules per barcode type.
 - Expand usage reporting and entitlement-driven UI messaging.

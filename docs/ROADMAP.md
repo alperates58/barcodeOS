@@ -54,6 +54,7 @@ Recently completed:
 - Hardened entitlement, plan resolution and usage summary services
 - Read-only subscription resource for safe admin visibility
 - Barcode access foundation for barcode-type and export-format entitlement checks
+- Pre-render-only barcode validation foundation with no rendering, export, history or usage side effects
 - Expanded barcode type admin management for access and export metadata
 - Dashboard usage cards now backed by real usage counter summaries
 
@@ -64,8 +65,10 @@ Phase 1 - SaaS Admin Foundation
 Roadmap interpretation:
 
 - Phase 0 is complete
-- Phase 1 is active
-- Phase 2 and Phase 3 have structural groundwork, but remain incomplete
+- Phase 1 has been strengthened
+- Phase 2 foundation exists, but the phase is not complete
+- Phase 3 has structural groundwork, but remains incomplete
+- The barcode rendering engine remains future work
 
 ---
 
@@ -88,6 +91,7 @@ Next build target:
 - Subscription reporting polish and possible safe detail views
 - Richer entitlement and usage summaries
 - Barcode type and export entitlement enforcement in upcoming rendering workflows
+- Wire the pre-render-only validation layer into future rendering flows without adding persistence or usage side effects
 - Usage reporting widgets driven by real counters
 
 ### Phase 3: Barcode Type and Parameter Management
@@ -103,6 +107,7 @@ Next expansion:
 
 - Better parameter management UX
 - Deeper type documentation and validation admin tooling
+- Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
 ---
 
@@ -122,3 +127,4 @@ Do implement in the next step:
 - Usage administration
 - Safer admin operations
 - More complete reporting foundations
+- Shared barcode services with category-based renderer and validator expansion points
