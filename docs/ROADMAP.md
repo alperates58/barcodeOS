@@ -79,35 +79,23 @@ Roadmap interpretation:
 - Phase 0 is complete
 - Phase 1 is completed and strengthened
 - Phase 2 foundation is largely complete
-- Phase 3 is current and in progress
+- Phase 3 is complete enough and closure audited
+- Phase 4 is next and begins the rendering engine work
 - The barcode rendering engine remains future work
+
+Phase 3 is complete enough to start Phase 4 rendering work.
 
 ---
 
 ## Near-Term Roadmap
 
-### Phase 1: SaaS Admin Foundation
+### Phase Status
 
-Remaining target:
-
-- Role and permission management screens
-- Audit log resource
-- Admin dashboard summaries
-- Safer production admin access workflow
-- Dedicated subscription administration screens
-
-### Phase 2: Plans, Features and Usage Limits
-
-Next build target:
-
-- Subscription reporting polish and possible safe detail views
-- Richer entitlement and usage summaries
-- Keep GS1 advanced barcode access entitlement-driven through seeded barcode type metadata
-- Keep GS1 parser usage explicit through `gs1-datamatrix` slug or `validation_rules.gs1_datamatrix=true`
-- Barcode type and export entitlement enforcement in upcoming rendering workflows
-- Wire the pre-render-only validation layer into future rendering flows without adding persistence or usage side effects
-- Expand GS1 support beyond the current short `01/21/93` and long `01/21/91/92` parser foundation when rendering and broader AI coverage become relevant
-- Usage reporting widgets driven by real counters
+- Phase 0: Completed
+- Phase 1: Completed / strengthened
+- Phase 2: Completed foundation
+- Phase 3: Complete enough / closure audited
+- Phase 4: Next / Rendering Engine
 
 ### Phase 3: Barcode Type and Parameter Management
 
@@ -130,6 +118,14 @@ Next expansion:
 - Keep `BarcodeGenerationService` side-effect-free until Phase 4 introduces real rendering orchestration
 - Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
+Non-blocking Phase 3 backlog:
+
+- upgrade messaging polish
+- richer field-level entitlement messages
+- saved templates foundation
+- generator UX polish
+- barcode type documentation UX
+
 ---
 
 ## Guardrails
@@ -144,9 +140,9 @@ Do not implement in the next step:
 
 Do implement in the next step:
 
-- Admin-manageable plan mapping
-- Usage administration
-- Safer admin operations
-- More complete reporting foundations
-- Shared barcode services with category-based renderer and validator expansion points
-- Phase 4 rendering integration only after the current public discovery and validation foundations remain stable
+- Phase 4 first task: QR Code renderer with in-memory SVG output only
+- No history persistence
+- No file persistence
+- No `generated_barcodes`
+- No `barcode_exports`
+- No usage increment

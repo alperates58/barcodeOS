@@ -1,6 +1,6 @@
 # BarcodeOS Setup Guide
 
-This document describes the current setup for BarcodeOS after the Phase 0 completion and Phase 1 safe start implementation.
+This document describes the current setup for BarcodeOS after the Phase 0 completion, the strengthened Phase 1 foundation, and the Phase 3 closure-audited state.
 
 BarcodeOS is a standalone Laravel SaaS application.
 
@@ -212,3 +212,13 @@ Still intentionally out of scope:
 - Full translation editor
 
 The current setup is a safe SaaS foundation, not a full product implementation.
+
+Current phase alignment:
+
+- Phase 0: Completed
+- Phase 1: Completed / strengthened
+- Phase 2: Completed foundation
+- Phase 3: Complete enough / closure audited
+- Phase 4: Next / Rendering Engine
+
+Phase 3 is complete enough to start Phase 4 rendering work.

@@ -44,8 +44,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const usageLabels: Record<string, string> = {
-    daily_generation_limit: 'Daily validation allowance',
-    monthly_generation_limit: 'Monthly validation allowance',
+    daily_generation_limit: 'Daily generation quota status',
+    monthly_generation_limit: 'Monthly generation quota status',
 };
 
 function buildParameterDefaults(config: BarcodeTypeConfig | null): Record<string, string | number | boolean | string[]> {
@@ -285,7 +285,7 @@ export default function BarcodeGeneratorPage() {
                     <div className="mt-6 grid gap-4 lg:grid-cols-2">
                         <UsageLimitNotice
                             title="Validate-only flow"
-                            message="Validation checks barcode access, export eligibility, input rules and dynamic parameter rules. It does not generate files or previews."
+                            message="Validate-only flow does not consume usage. This only checks the current generation entitlement and limit status. No barcode is generated yet."
                         />
                         <UsageLimitNotice
                             title="Usage summary"
@@ -299,10 +299,10 @@ export default function BarcodeGeneratorPage() {
                                     }
 
                                     if (usage.limit === null) {
-                                        return `${usageLabels[key] ?? key}: no configured limit`;
+                                        return `${usageLabels[key] ?? key}: no configured limit, validate-only flow still consumes nothing`;
                                     }
 
-                                    return `${usageLabels[key] ?? key}: ${usage.used}/${usage.limit} used, ${usage.remaining ?? 0} remaining`;
+                                    return `${usageLabels[key] ?? key}: ${usage.used}/${usage.limit} used, ${usage.remaining ?? 0} remaining for future generation; validation does not consume usage`;
                                 })
                                 .join(' | ')}
                         />

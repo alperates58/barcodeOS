@@ -20,6 +20,8 @@ Current focus:
 - Expand the public homepage into a modern SaaS discovery surface with a non-rendering generator landing foundation
 - Keep secure deployment and admin foundations stable while rendering remains future work
 
+Phase 3 is complete enough to start Phase 4 rendering work.
+
 ---
 
 ## Phase Status Summary
@@ -28,9 +30,9 @@ Current focus:
 |---|---|---|
 | Phase 0 | Project Foundation | Completed |
 | Phase 1 | SaaS Admin Foundation | Completed / Strengthened |
-| Phase 2 | Plans, Features and Usage Limits | Completed / Foundation Ready |
-| Phase 3 | Barcode Type and Parameter Management | Current / In Progress |
-| Phase 4 | Barcode Generation Engine | Pending |
+| Phase 2 | Plans, Features and Usage Limits | Completed Foundation |
+| Phase 3 | Barcode Type and Parameter Management | Complete Enough / Closure Audited |
+| Phase 4 | Barcode Generation Engine | Next / Rendering Engine |
 | Phase 5 | User Dashboard and History | Pending |
 | Phase 6 | Pricing and Billing Foundation | Pending |
 | Phase 7 | Stripe Subscription Integration | Pending |
@@ -119,7 +121,7 @@ Still remaining for Phase 1:
 
 ## Phase 3 Progress
 
-Phase 3 has now started.
+Phase 3 closure audit has passed and the phase is complete enough for Phase 4 entry.
 
 Completed in this cycle:
 
@@ -152,6 +154,14 @@ Important current rules:
 - no `generated_barcodes` or `barcode_exports` records are created
 - rendering is still future work
 
+Non-blocking Phase 3 backlog:
+
+- upgrade messaging polish
+- richer field-level entitlement messages
+- saved templates foundation
+- generator UX polish
+- barcode type documentation UX
+
 ---
 
 ## Notes For Upcoming Phases
@@ -173,14 +183,16 @@ These phases remain pending because real commercial workflows and deeper admin U
 
 Recommended next task:
 
-Phase 3 - Barcode Type and Parameter Management
+Phase 4 - Barcode Generation Engine
 
 Safe implementation target:
 
-- Connect a real barcode renderer behind the existing validation and access foundation in Phase 4
-- Keep `BarcodeGenerationService` as a no-render coordinator until Phase 4 activates real renderer integration
-- Expand admin documentation support around barcode type configuration and GS1 rules
-- Add audit log resource and role/permission management pages in parallel when safe
+- QR Code renderer with in-memory SVG output only
+- No history persistence
+- No file persistence
+- No `generated_barcodes`
+- No `barcode_exports`
+- No usage increment
 
 ---
 
