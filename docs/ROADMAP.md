@@ -62,6 +62,9 @@ Recently completed:
 - `App\Services\Barcode\ParameterSchemaResolver` now centralizes resolved parameter schema
 - Read-only barcode type config endpoint added for authenticated app flows without rendering
 - Responsive feature-based frontend barcode foundation added without wiring a live generator page
+- Phase 3 generator page foundation now connects the live config endpoint to an authenticated Inertia page
+- Config-driven dynamic parameter form now exists for validate-only user flows
+- Validate-only user flow is active while rendering/export/history persistence remain future work
 
 Current phase:
 
@@ -118,7 +121,7 @@ Next expansion:
 
 - Better parameter management UX
 - Deeper type documentation and validation admin tooling
-- Connect config-driven schema to a real generator page without implying rendering exists
+- Build on the validate-only generator page without implying rendering exists
 - Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
 ---

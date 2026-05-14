@@ -919,7 +919,11 @@ resources/js/
 Frontend barcode direction:
 
 - future barcode UI work should follow a responsive feature-based structure under `resources/js/features/barcode/`
-- initial responsive barcode foundation components now live under that feature folder, but they are not yet connected to a live generator page
+- initial responsive barcode foundation components now live under that feature folder
+- Phase 3 now connects those components to an authenticated Inertia generator page
+- the generator page uses the live config endpoint client-side and exposes a config-driven dynamic parameter form
+- validate-only user flow is active through a dedicated authenticated endpoint
+- rendering, export and history persistence remain future work
 - do not split barcode UI into a separate `mobile` folder
 - responsive behavior should be handled within shared feature components and layouts
 

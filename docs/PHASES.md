@@ -128,11 +128,16 @@ Completed in this cycle:
 - Active `barcode_parameters` now act as the complementary source
 - Read-only barcode type config endpoint added for authenticated app usage
 - Responsive feature-based frontend barcode foundation added under `resources/js/features/barcode/`
+- Phase 3 generator page foundation added for authenticated app usage
+- Config-driven dynamic parameter form now exists on the user-facing generator page
+- Validate-only user flow is now active through a dedicated authenticated endpoint
+- Generator page sidebar navigation entry added for app discovery without implying rendering support
 
 Important current rules:
 
 - the config endpoint is read-only and render-free
 - validation remains side-effect-free
+- rendering, export and history persistence remain future work
 - no `usage_counters` are created or incremented
 - no `generated_barcodes` or `barcode_exports` records are created
 - rendering is still future work
@@ -162,8 +167,8 @@ Phase 3 - Barcode Type and Parameter Management
 
 Safe implementation target:
 
-- Connect the read-only config endpoint to a real app generator screen without enabling rendering
-- Keep `BarcodeValidationService` side-effect-free as config-driven UI flows start consuming resolved schema
+- Expand field-level validation UX and upgrade messaging on the validate-only generator page
+- Keep `BarcodeValidationService` side-effect-free as config-driven UI flows consume resolved schema
 - Expand admin documentation support around barcode type configuration and GS1 rules
 - Add audit log resource and role/permission management pages in parallel when safe
 

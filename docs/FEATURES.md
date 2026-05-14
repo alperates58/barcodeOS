@@ -1001,6 +1001,9 @@ Current status:
 - Full GS1 AI catalog support and barcode rendering remain future work
 - No PNG, SVG, PDF, EPS or ZIP generation is implemented yet; export format metadata remains admin-manageable catalog configuration only
 - the barcode type config endpoint is read-only and render-free
+- the authenticated generator page now consumes that config endpoint client-side to build a config-driven dynamic parameter form
+- the authenticated validate-only endpoint returns structured validation results without side effects
+- validate-only user flow is active, but rendering/export/history persistence remain future work
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:
