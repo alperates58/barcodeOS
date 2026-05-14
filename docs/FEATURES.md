@@ -988,8 +988,10 @@ Current status:
 - Plan-feature assignments are manageable from admin
 - Usage counters are visible from a read-only admin resource
 - BarcodeValidationService exists as a pre-render-only validation layer
+- BarcodeGenerationService exists as a coordinator skeleton that currently performs validation plus renderer availability checks only
 - BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
 - Validation currently ignores unknown parameters safely and does not render, export, persist history/files or increment usage
+- BarcodeGenerationService currently does not render, export, persist history/files or increment usage
 - `App\Services\Barcode\ParameterSchemaResolver` now makes `barcode_types.parameter_schema` the primary source and active `barcode_parameters` the complementary source
 - future generator UI foundations are expected to consume the resolved parameter schema instead of raw admin storage structures
 - GS1 DataMatrix parsing now exists as a dedicated `App\Services\Barcode\Gs1Parser` foundation
@@ -1003,6 +1005,7 @@ Current status:
 - the barcode type config endpoint is read-only and render-free
 - the authenticated generator page now consumes that config endpoint client-side to build a config-driven dynamic parameter form
 - the authenticated validate-only endpoint returns structured validation results without side effects
+- the authenticated generator UI still remains validate-only
 - validate-only user flow is active, but rendering/export/history persistence remain future work
 - Deeper integration into barcode generation, export and API workflows remains pending
 

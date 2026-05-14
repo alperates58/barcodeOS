@@ -65,6 +65,7 @@ Recently completed:
 - Phase 3 generator page foundation now connects the live config endpoint to an authenticated Inertia page
 - Config-driven dynamic parameter form now exists for validate-only user flows
 - Validate-only user flow is active while rendering/export/history persistence remain future work
+- `App\Services\Barcode\BarcodeGenerationService` now exists as a coordinator skeleton for validation plus renderer availability checks only
 
 Current phase:
 
@@ -122,6 +123,7 @@ Next expansion:
 - Better parameter management UX
 - Deeper type documentation and validation admin tooling
 - Build on the validate-only generator page without implying rendering exists
+- Keep `BarcodeGenerationService` side-effect-free until Phase 4 introduces real rendering orchestration
 - Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
 ---

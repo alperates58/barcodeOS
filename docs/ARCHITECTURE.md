@@ -513,6 +513,23 @@ BarcodeValidationService:
 - Does not create `generated_barcodes` or `barcode_exports`.
 - Does not increment usage.
 
+BarcodeGenerationService:
+
+- Lives in `App\Services\Barcode\BarcodeGenerationService`.
+- Acts as a Phase 3 coordinator skeleton only.
+- Calls `BarcodeValidationService::validateGenerationRequest(...)`.
+- Preserves the normalized validation payload in a stable generation result contract.
+- Checks `BarcodeTypeRegistry` for renderer availability after validation passes.
+- Returns `validation_failed` when validation fails.
+- Returns `renderer_not_supported` when no renderer is available.
+- May return `ready_for_render` in future-safe scenarios, but does not render in this phase.
+- Does not call renderer implementations in Phase 3.
+- Does not export output.
+- Does not store barcode history or files.
+- Does not create `usage_counters`.
+- Does not create `generated_barcodes` or `barcode_exports`.
+- Does not increment usage.
+
 Gs1Parser:
 
 - Lives in `App\Services\Barcode\Gs1Parser`.
@@ -550,6 +567,8 @@ Current foundation note:
 - `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
 - it does not render, export, store files or increment usage
 - `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
+- `BarcodeGenerationService` is a coordinator skeleton that currently validates and checks renderer availability only
+- it does not call renderers, create records, create files or increment usage
 - authenticated app flows may read barcode type config through `/app/barcodes/types/{barcodeType:slug}/config`
 - that endpoint is read-only and returns resolved parameter schema, access info and export availability only
 - `Gs1Parser` is intentionally separate from entitlement, usage, billing and rendering so GS1 parsing remains deterministic and testable
@@ -923,6 +942,7 @@ Frontend barcode direction:
 - Phase 3 now connects those components to an authenticated Inertia generator page
 - the generator page uses the live config endpoint client-side and exposes a config-driven dynamic parameter form
 - validate-only user flow is active through a dedicated authenticated endpoint
+- the generator UI still remains validate-only while generation coordination stays service-only
 - rendering, export and history persistence remain future work
 - do not split barcode UI into a separate `mobile` folder
 - responsive behavior should be handled within shared feature components and layouts

@@ -124,6 +124,7 @@ Completed in this cycle:
 
 - Barcode parameter admin UX strengthened for future generator form and validation metadata
 - `App\Services\Barcode\ParameterSchemaResolver` added
+- `App\Services\Barcode\BarcodeGenerationService` coordinator skeleton added
 - `barcode_types.parameter_schema` is now the primary source for resolved parameter schema
 - Active `barcode_parameters` now act as the complementary source
 - Read-only barcode type config endpoint added for authenticated app usage
@@ -137,6 +138,8 @@ Important current rules:
 
 - the config endpoint is read-only and render-free
 - validation remains side-effect-free
+- `BarcodeGenerationService` currently performs validation plus renderer availability checks only
+- `BarcodeGenerationService` does not render, export, persist history/files or increment usage
 - rendering, export and history persistence remain future work
 - no `usage_counters` are created or incremented
 - no `generated_barcodes` or `barcode_exports` records are created
@@ -168,7 +171,7 @@ Phase 3 - Barcode Type and Parameter Management
 Safe implementation target:
 
 - Expand field-level validation UX and upgrade messaging on the validate-only generator page
-- Keep `BarcodeValidationService` side-effect-free as config-driven UI flows consume resolved schema
+- Keep `BarcodeGenerationService` as a no-render coordinator until Phase 4 activates real renderer integration
 - Expand admin documentation support around barcode type configuration and GS1 rules
 - Add audit log resource and role/permission management pages in parallel when safe
 
