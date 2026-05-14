@@ -23,12 +23,19 @@ BarcodeOS has four major application areas:
 The public website includes:
 
 - Landing page
-- Barcode generator entry page
+- Homepage-based barcode generator landing foundation
 - Barcode type listing pages
 - Pricing page
 - API documentation page
 - Help / FAQ pages
 - Login and registration pages
+
+Current implementation note:
+
+- the homepage is the canonical public discovery surface in Phase 3
+- public `Barcode Generator` and `API` navigation links currently use homepage anchors rather than separate public routes
+- the public generator landing panel is intentionally read-only and non-rendering
+- rendering, downloads and export previews remain Phase 4 work
 
 ### User Application
 
@@ -943,6 +950,8 @@ Frontend barcode direction:
 - the generator page uses the live config endpoint client-side and exposes a config-driven dynamic parameter form
 - validate-only user flow is active through a dedicated authenticated endpoint
 - the generator UI still remains validate-only while generation coordination stays service-only
+- the public homepage now exposes a separate non-rendering discovery panel that uses only controller-provided database data
+- the public homepage does not call config or validate endpoints
 - rendering, export and history persistence remain future work
 - do not split barcode UI into a separate `mobile` folder
 - responsive behavior should be handled within shared feature components and layouts

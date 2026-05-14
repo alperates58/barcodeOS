@@ -1,5 +1,5 @@
 import AppLogoIcon from '@/components/app-logo-icon';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -10,11 +10,13 @@ interface PublicLayoutProps {
 
 export default function PublicLayout({ children }: PublicLayoutProps) {
     const { auth, app } = usePage<SharedData>().props;
+    const primaryHref = auth.user ? route('app.barcodes.generator') : route('register');
+    const primaryLabel = auth.user ? 'Open Generator' : 'Get Started';
 
     return (
-        <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_42%,#f8fafc_100%)] text-slate-950">
+        <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbff_0%,#ffffff_40%,#f8fafc_100%)] text-slate-950">
             <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-6 lg:px-8">
-                <header className="mb-10 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 shadow-sm backdrop-blur">
+                <header className="mb-10 rounded-[1.75rem] border border-slate-200/80 bg-white/85 px-5 py-4 shadow-sm backdrop-blur">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <Link href={route('home')} className="flex items-center gap-3">
                             <div className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-blue-900/10">
@@ -26,21 +28,27 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                             </div>
                         </Link>
 
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Link href="/#generator" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-slate-700')}>
+                                Barcode Generator
+                            </Link>
                             <Link href={route('pricing')} className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-slate-700')}>
                                 Pricing
                             </Link>
+                            <Link href="/#api" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-slate-700')}>
+                                API
+                            </Link>
                             {auth.user ? (
-                                <Link href={route('dashboard')} className={buttonVariants({ variant: 'default', size: 'sm' })}>
-                                    Dashboard
+                                <Link href={primaryHref} className={buttonVariants({ variant: 'default', size: 'sm' })}>
+                                    {primaryLabel}
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={route('login')} className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-slate-700')}>
                                         Log in
                                     </Link>
-                                    <Link href={route('register')} className={buttonVariants({ variant: 'default', size: 'sm' })}>
-                                        Get Started
+                                    <Link href={primaryHref} className={buttonVariants({ variant: 'default', size: 'sm' })}>
+                                        {primaryLabel}
                                     </Link>
                                 </>
                             )}
@@ -52,13 +60,19 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
                 <footer className="mt-12 border-t border-slate-200/80 py-6 text-sm text-slate-500">
                     <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                        <p>BarcodeOS foundation keeps plans, barcode catalog and provider settings admin-manageable from day one.</p>
-                        <div className="flex items-center gap-4">
+                        <p>BarcodeOS keeps plans, barcode catalog and provider settings admin-manageable while public discovery stays honest about the current phase.</p>
+                        <div className="flex flex-wrap items-center gap-4">
                             <Link href={route('home')} className="transition hover:text-slate-900">
                                 Home
                             </Link>
+                            <Link href="/#generator" className="transition hover:text-slate-900">
+                                Barcode Generator
+                            </Link>
                             <Link href={route('pricing')} className="transition hover:text-slate-900">
                                 Pricing
+                            </Link>
+                            <Link href="/#api" className="transition hover:text-slate-900">
+                                API
                             </Link>
                         </div>
                     </div>

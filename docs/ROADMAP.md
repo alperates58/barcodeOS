@@ -66,6 +66,9 @@ Recently completed:
 - Config-driven dynamic parameter form now exists for validate-only user flows
 - Validate-only user flow is active while rendering/export/history persistence remain future work
 - `App\Services\Barcode\BarcodeGenerationService` now exists as a coordinator skeleton for validation plus renderer availability checks only
+- Phase 3 public homepage + generator landing foundation added as a modern SaaS discovery layer
+- Public homepage now uses active barcode catalog data and public plan data without calling validation or generation flows
+- Public `Barcode Generator` and `API` navigation now route to homepage anchors instead of separate public pages
 
 Current phase:
 
@@ -123,6 +126,7 @@ Next expansion:
 - Better parameter management UX
 - Deeper type documentation and validation admin tooling
 - Build on the validate-only generator page without implying rendering exists
+- Continue turning the public website into a trustworthy discovery layer without introducing fake preview or download behavior
 - Keep `BarcodeGenerationService` side-effect-free until Phase 4 introduces real rendering orchestration
 - Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
@@ -145,3 +149,4 @@ Do implement in the next step:
 - Safer admin operations
 - More complete reporting foundations
 - Shared barcode services with category-based renderer and validator expansion points
+- Phase 4 rendering integration only after the current public discovery and validation foundations remain stable

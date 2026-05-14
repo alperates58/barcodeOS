@@ -1007,6 +1007,11 @@ Current status:
 - the authenticated validate-only endpoint returns structured validation results without side effects
 - the authenticated generator UI still remains validate-only
 - validate-only user flow is active, but rendering/export/history persistence remain future work
+- the public homepage now includes a modern SaaS generator landing foundation for discovery only
+- the public generator landing panel is read-only and non-rendering
+- the public homepage does not call config or validate endpoints
+- public `Barcode Generator` and `API` navigation links use homepage anchors
+- rendering, download and export output remain Phase 4 work
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:

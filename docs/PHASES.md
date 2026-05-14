@@ -17,6 +17,7 @@ Current focus:
 - Strengthen barcode parameter admin UX and generator config foundation without enabling rendering
 - Reuse resolved parameter schema across validation and future frontend form flows
 - Keep config transport read-only and render-free for authenticated app usage
+- Expand the public homepage into a modern SaaS discovery surface with a non-rendering generator landing foundation
 - Keep secure deployment and admin foundations stable while rendering remains future work
 
 ---
@@ -133,6 +134,10 @@ Completed in this cycle:
 - Config-driven dynamic parameter form now exists on the user-facing generator page
 - Validate-only user flow is now active through a dedicated authenticated endpoint
 - Generator page sidebar navigation entry added for app discovery without implying rendering support
+- Phase 3 public homepage + generator landing foundation added
+- Homepage now acts as a modern SaaS discovery surface backed by active barcode catalog and public plan data
+- Public generator landing panel is non-rendering and read-only
+- Public `Barcode Generator` and `API` navigation links now use homepage anchors instead of separate public routes
 
 Important current rules:
 
@@ -140,6 +145,8 @@ Important current rules:
 - validation remains side-effect-free
 - `BarcodeGenerationService` currently performs validation plus renderer availability checks only
 - `BarcodeGenerationService` does not render, export, persist history/files or increment usage
+- the public homepage does not call config or validate endpoints
+- the public homepage does not render barcodes, show preview images or enable downloads
 - rendering, export and history persistence remain future work
 - no `usage_counters` are created or incremented
 - no `generated_barcodes` or `barcode_exports` records are created
@@ -170,7 +177,7 @@ Phase 3 - Barcode Type and Parameter Management
 
 Safe implementation target:
 
-- Expand field-level validation UX and upgrade messaging on the validate-only generator page
+- Connect a real barcode renderer behind the existing validation and access foundation in Phase 4
 - Keep `BarcodeGenerationService` as a no-render coordinator until Phase 4 activates real renderer integration
 - Expand admin documentation support around barcode type configuration and GS1 rules
 - Add audit log resource and role/permission management pages in parallel when safe
