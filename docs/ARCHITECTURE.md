@@ -330,6 +330,7 @@ Core services:
 - App\Services\Entitlements\EntitlementService
 - App\Services\Plans\PlanResolverService
 - App\Services\Usage\UsageLimitService
+- App\Services\Barcode\BarcodeAccessService
 
 Example feature keys:
 
@@ -428,6 +429,7 @@ Barcode types should include fields such as:
 - default_margin
 - default_format
 - supported_export_formats
+- required_features
 - parameter_schema
 - documentation
 - seo_title
@@ -508,6 +510,11 @@ BarcodeTypeRegistry:
 
 - Maps database barcode type records to supported renderer implementations.
 - Allows expansion over time.
+
+Current foundation note:
+
+- `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
+- it does not render, export, store files or increment usage
 
 ---
 

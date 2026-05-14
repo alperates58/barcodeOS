@@ -32,7 +32,7 @@ class PlanResolverService
     {
         return $user->subscriptions()
             ->with('plan')
-            ->paidPlan()
+            ->activeOrTrialing()
             ->withinCurrentPeriod()
             ->orderByDesc('current_period_ends_at')
             ->orderByDesc('id')

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BarcodeTypes;
 
 use App\Filament\Resources\BarcodeTypes\Pages\ManageBarcodeTypes;
+use App\Models\Feature;
 use App\Models\BarcodeType;
 use BackedEnum;
 use Filament\Actions\EditAction;
@@ -49,6 +50,7 @@ class BarcodeTypeResource extends Resource
                                 'active' => 'Active',
                                 'beta' => 'Beta',
                                 'draft' => 'Draft',
+                                'archived' => 'Archived',
                             ]),
                         TextInput::make('icon')->maxLength(255),
                         Textarea::make('description')->rows(3)->columnSpanFull(),
@@ -57,9 +59,9 @@ class BarcodeTypeResource extends Resource
                     ->columns(2),
                 Section::make('Defaults and exports')
                     ->schema([
-                        TextInput::make('default_width')->numeric()->default(300),
-                        TextInput::make('default_height')->numeric()->default(120),
-                        TextInput::make('default_margin')->numeric()->default(10),
+                        TextInput::make('default_width')->numeric()->default(300)->minValue(1),
+                        TextInput::make('default_height')->numeric()->default(120)->minValue(1),
+                        TextInput::make('default_margin')->numeric()->default(10)->minValue(0),
                         Select::make('default_format')
                             ->default('png')
                             ->required()
@@ -68,14 +70,29 @@ class BarcodeTypeResource extends Resource
                                 'svg' => 'SVG',
                                 'pdf' => 'PDF',
                                 'eps' => 'EPS',
+                                'zip' => 'ZIP',
                             ]),
-                        TagsInput::make('supported_export_formats')->separator(',')->columnSpanFull(),
-                        TagsInput::make('required_features')->separator(',')->columnSpanFull(),
+                        Select::make('supported_export_formats')
+                            ->multiple()
+                            ->options(static::exportFormatOptions())
+                            ->searchable()
+                            ->preload()
+                            ->columnSpanFull(),
+                        Select::make('required_features')
+                            ->multiple()
+                            ->options(fn (): array => Feature::query()->orderBy('sort_order')->pluck('name', 'key')->all())
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Empty still requires the base barcode.generate entitlement.')
+                            ->columnSpanFull(),
                     ])
                     ->columns(4),
                 Section::make('Rules and documentation')
                     ->schema([
-                        KeyValue::make('validation_rules')->columnSpanFull(),
+                        TagsInput::make('validation_rules')
+                            ->separator(',')
+                            ->helperText('Use simple Laravel validation rule strings for this foundation step.')
+                            ->columnSpanFull(),
                         KeyValue::make('parameter_schema')->columnSpanFull(),
                         Textarea::make('documentation')->rows(4)->columnSpanFull(),
                         TextInput::make('seo_title')->maxLength(255),
@@ -95,6 +112,9 @@ class BarcodeTypeResource extends Resource
                 TextColumn::make('category.name')->label('Category')->searchable()->sortable(),
                 TextColumn::make('status')->badge(),
                 TextColumn::make('default_format')->badge()->label('Default format'),
+                TextColumn::make('supported_export_formats')
+                    ->label('Exports')
+                    ->formatStateUsing(fn ($state): string => implode(', ', is_array($state) ? $state : [])),
                 TextColumn::make('sort_order')->sortable(),
                 TextColumn::make('updated_at')->dateTime()->sortable(),
             ])
@@ -104,7 +124,11 @@ class BarcodeTypeResource extends Resource
                         'active' => 'Active',
                         'beta' => 'Beta',
                         'draft' => 'Draft',
+                        'archived' => 'Archived',
                     ]),
+                SelectFilter::make('barcode_category_id')
+                    ->relationship('category', 'name')
+                    ->label('Category'),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -115,6 +139,17 @@ class BarcodeTypeResource extends Resource
     {
         return [
             'index' => ManageBarcodeTypes::route('/'),
+        ];
+    }
+
+    protected static function exportFormatOptions(): array
+    {
+        return [
+            'png' => 'PNG',
+            'svg' => 'SVG',
+            'pdf' => 'PDF',
+            'eps' => 'EPS',
+            'zip' => 'ZIP',
         ];
     }
 }

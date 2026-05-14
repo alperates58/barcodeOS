@@ -11,9 +11,41 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_TRIALING = 'trialing';
+
+    public const STATUS_PAST_DUE = 'past_due';
+
+    public const STATUS_UNPAID = 'unpaid';
+
+    public const STATUS_CANCELED = 'canceled';
+
+    public const STATUS_EXPIRED = 'expired';
+
+    public const STATUS_INCOMPLETE = 'incomplete';
+
+    public const STATUS_INCOMPLETE_EXPIRED = 'incomplete_expired';
+
+    public const PAID_ACCESS_ELIGIBLE_STATUSES = [
+        self::STATUS_ACTIVE,
+        self::STATUS_TRIALING,
+    ];
+
+    public const KNOWN_STATUSES = [
+        self::STATUS_ACTIVE,
+        self::STATUS_TRIALING,
+        self::STATUS_PAST_DUE,
+        self::STATUS_UNPAID,
+        self::STATUS_CANCELED,
+        self::STATUS_EXPIRED,
+        self::STATUS_INCOMPLETE,
+        self::STATUS_INCOMPLETE_EXPIRED,
+    ];
+
     public const PAID_PLAN_STATUSES = [
-        'active',
-        'trialing',
+        self::STATUS_ACTIVE,
+        self::STATUS_TRIALING,
     ];
 
     protected $fillable = [
@@ -52,9 +84,19 @@ class Subscription extends Model
         return $this->belongsTo(Plan::class);
     }
 
+    public function isPaidAccessEligible(): bool
+    {
+        return in_array($this->status, self::PAID_ACCESS_ELIGIBLE_STATUSES, true);
+    }
+
+    public function scopeActiveOrTrialing(Builder $query): Builder
+    {
+        return $query->whereIn('status', self::PAID_ACCESS_ELIGIBLE_STATUSES);
+    }
+
     public function scopePaidPlan(Builder $query): Builder
     {
-        return $query->whereIn('status', self::PAID_PLAN_STATUSES);
+        return $query->activeOrTrialing();
     }
 
     public function scopeWithinCurrentPeriod(Builder $query): Builder
@@ -81,6 +123,11 @@ class Subscription extends Model
 
     public static function paidPlanStatuses(): array
     {
-        return self::PAID_PLAN_STATUSES;
+        return self::PAID_ACCESS_ELIGIBLE_STATUSES;
+    }
+
+    public static function knownStatuses(): array
+    {
+        return self::KNOWN_STATUSES;
     }
 }

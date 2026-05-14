@@ -52,6 +52,9 @@ Recently completed:
 - Plan-feature relation manager inside the plan admin workflow
 - Read-only usage counter resource for admin visibility
 - Hardened entitlement, plan resolution and usage summary services
+- Read-only subscription resource for safe admin visibility
+- Barcode access foundation for barcode-type and export-format entitlement checks
+- Expanded barcode type admin management for access and export metadata
 - Dashboard usage cards now backed by real usage counter summaries
 
 Current phase:
@@ -82,9 +85,9 @@ Remaining target:
 
 Next build target:
 
-- Subscription admin resource
+- Subscription reporting polish and possible safe detail views
 - Richer entitlement and usage summaries
-- Barcode type and export entitlement enforcement in upcoming workflows
+- Barcode type and export entitlement enforcement in upcoming rendering workflows
 - Usage reporting widgets driven by real counters
 
 ### Phase 3: Barcode Type and Parameter Management

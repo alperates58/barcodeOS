@@ -46,7 +46,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->subscriptions()
             ->one()
-            ->paidPlan()
+            ->activeOrTrialing()
             ->withinCurrentPeriod()
             ->latestOfMany(['current_period_ends_at', 'id']);
     }

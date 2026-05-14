@@ -827,6 +827,12 @@ Example:
 
 Do not hard-code barcode availability by plan name.
 
+Current implementation note:
+
+- `App\Services\Barcode\BarcodeAccessService` now evaluates barcode type access through `EntitlementService`
+- `barcode.generate` is always treated as the base required feature, even when a barcode type has no explicit `required_features`
+- multiple `required_features` are enforced with AND logic
+
 ---
 
 ## 11. Export Feature Access
@@ -844,6 +850,12 @@ Examples:
 Backend must enforce export permissions.
 
 Frontend should only hide/lock buttons for better UX, not for real security.
+
+Current implementation note:
+
+- export entitlement foundation is now centralized in `BarcodeAccessService`
+- the current format map is `png`, `svg`, `pdf`, `eps`, `zip`
+- unknown export formats are rejected safely
 
 ---
 
@@ -960,12 +972,15 @@ Current status:
 - Feature system design documented
 - Core plans, features, plan_features and usage_counters are implemented and seeded
 - EntitlementService, PlanResolverService and UsageLimitService are implemented and test-covered
+- Subscription paid-access eligibility rules are centralized on the `Subscription` model
+- Subscription visibility is available in a read-only admin-safe Filament resource
 - Plan-feature assignments are manageable from admin
 - Usage counters are visible from a read-only admin resource
+- BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:
 
-- Add subscription administration screens.
+- Expand safe subscription administration visibility as needed.
 - Enforce feature checks in barcode/export workflows as later phases activate.
 - Expand usage reporting and entitlement-driven UI messaging.

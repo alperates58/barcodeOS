@@ -15,7 +15,7 @@ Phase 1 - SaaS Admin Foundation
 Current focus:
 
 - Harden admin access and admin-manageable system foundations
-- Complete admin-manageable plan, entitlement and usage visibility foundations
+- Complete admin-manageable plan, entitlement, subscription and usage visibility foundations
 - Keep plans, features and barcode catalog ready for the next implementation phases
 - Prepare secure deployment operations without unsafe in-container shell execution
 
@@ -84,6 +84,9 @@ Completed in this cycle:
 - EntitlementService and UsageLimitService now support real plan feature reads with side-effect-free usage checks
 - Plan features are now managed directly from Plan edit via a relation manager
 - Read-only Usage Counter admin resource added for operational visibility
+- Read-only Subscription admin resource added for safe subscription visibility without payment-state mutation
+- BarcodeAccessService added as a pre-rendering access-control foundation for barcode types and export formats
+- BarcodeType admin UX expanded for export formats, required features, parameter schema and documentation metadata
 - Authenticated dashboard now shows real current plan and usage summary data without fake analytics
 
 Still remaining for Phase 1:
@@ -91,7 +94,7 @@ Still remaining for Phase 1:
 - Dedicated AuditLog Filament resource
 - Role and permission management UI
 - More admin dashboard widgets and operational summaries
-- Dedicated subscription management screens
+- Deeper subscription operations beyond safe read-only visibility
 - More granular admin policies and permissions
 
 ---
@@ -100,8 +103,8 @@ Still remaining for Phase 1:
 
 Prepared but not completed yet:
 
-- Phase 2 foundation now exists at model, seeder, service and admin UX level for plans, entitlements and usage counters
-- Phase 3 foundation exists at model, seeder and admin resource level
+- Phase 2 foundation now exists at model, seeder, service and admin UX level for plans, entitlements, subscriptions and usage counters
+- Phase 3 foundation exists at model, seeder and expanded barcode type admin resource level
 - Phase 6 pricing foundation exists at data model and public page level
 
 These phases remain pending because real commercial workflows and deeper admin UX are intentionally deferred.
@@ -116,8 +119,7 @@ Phase 2 - Plans, Features and Usage Limits
 
 Safe implementation target:
 
-- Add a dedicated Subscription admin resource with safe status visibility
-- Connect barcode type access and future export actions to entitlement checks
+- Connect BarcodeAccessService into the first real generation/export workflow when rendering begins
 - Expand usage summaries and reporting widgets with real usage counter queries
 - Add audit log resource and role/permission management pages
 
