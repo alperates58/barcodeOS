@@ -11,6 +11,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\UsageCounter;
 use App\Models\User;
+use App\Services\Barcode\Gs1Parser;
 use App\Services\Barcode\BarcodeValidationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -650,6 +651,61 @@ class BarcodeValidationServiceTest extends TestCase
 
         $this->assertFalse($result['valid']);
         $this->assertSame('barcode_type_inactive', $result['errors'][0]['code']);
+    }
+
+    public function test_normal_data_matrix_remains_valid_and_is_not_forced_into_gs1_validation(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = BarcodeType::query()->where('slug', 'data-matrix')->firstOrFail();
+        $barcodeType->update([
+            'validation_rules' => ['gs1_datamatrix' => true],
+        ]);
+
+        $result = $service->validateData($barcodeType->fresh(), 'DMX-42-ALPHA');
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame('DMX-42-ALPHA', $result['normalized']['data']);
+    }
+
+    public function test_gs1_parser_errors_are_mapped_into_common_validation_result_structure(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = $this->makeBarcodeType([
+            'slug' => 'gs1-datamatrix',
+            'validation_rules' => ['gs1_datamatrix' => true],
+        ]);
+
+        $result = $service->validateData($barcodeType, '011234567890123421ABC12391VAL1');
+
+        $this->assertFalse($result['valid']);
+        $this->assertSame('missing_ai_92', $result['errors'][0]['code']);
+        $this->assertSame('data', $result['errors'][0]['field']);
+    }
+
+    public function test_valid_gs1_datamatrix_passes_validation_without_rendering(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = $this->makeBarcodeType([
+            'slug' => 'gs1-data-matrix',
+            'validation_rules' => ['gs1_datamatrix' => true],
+        ]);
+
+        $result = $service->validateData($barcodeType, '011234567890123421ABC12393XYZ');
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame(
+            Gs1Parser::GS.'011234567890123421ABC123'.Gs1Parser::GS.'93XYZ',
+            $result['normalized']['data']
+        );
+        $this->assertSame(0, UsageCounter::query()->count());
+        $this->assertSame(0, GeneratedBarcode::query()->count());
+        $this->assertSame(0, BarcodeExport::query()->count());
     }
 
     protected function makeSubscribedUser(string $planSlug): User

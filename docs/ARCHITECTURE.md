@@ -501,12 +501,27 @@ BarcodeValidationService:
 - Validates barcode type rules.
 - Validates dynamic parameters.
 - Runs before rendering only.
+- May delegate GS1 DataMatrix parsing to `App\Services\Barcode\Gs1Parser` only for explicitly signaled barcode types.
 - Ignores unknown parameters safely during normalization.
 - Does not render or export output.
 - Does not store barcode history or files.
 - Does not create `usage_counters`.
 - Does not create `generated_barcodes` or `barcode_exports`.
 - Does not increment usage.
+
+Gs1Parser:
+
+- Lives in `App\Services\Barcode\Gs1Parser`.
+- Is a service-layer parser only.
+- Cleans BOM and invisible leading characters from raw input.
+- Normalizes literal `\F` sequences into the ASCII GS separator.
+- Supports parenthesized AI input for `01`, `21`, `91`, `92` and `93`.
+- Distinguishes normal Data Matrix from GS1 DataMatrix without rendering.
+- Supports only these GS1 DataMatrix structures in this phase:
+  - `01 + GTIN(14) + 21 + serial + 93 + value`
+  - `01 + GTIN(14) + 21 + serial + 91 + value + 92 + value`
+- Produces normalized encode data and human-readable AI text for later rendering work.
+- Does not call entitlement, usage, billing, controller, renderer, export or persistence flows.
 
 BarcodeRendererService:
 
@@ -531,6 +546,7 @@ Current foundation note:
 - `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
 - it does not render, export, store files or increment usage
 - `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
+- `Gs1Parser` is intentionally separate from entitlement, usage, billing and rendering so GS1 parsing remains deterministic and testable
 
 ---
 

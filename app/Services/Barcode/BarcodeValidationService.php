@@ -31,6 +31,7 @@ class BarcodeValidationService
     public function __construct(
         protected BarcodeAccessService $barcodeAccessService,
         protected UsageLimitService $usageLimitService,
+        protected Gs1Parser $gs1Parser,
     ) {}
 
     public function validateBarcodeType(User $user, BarcodeType $barcodeType): array
@@ -196,6 +197,20 @@ class BarcodeValidationService
         if ($errors !== []) {
             return $this->invalidResult($errors, [
                 'data' => $normalizedData,
+            ]);
+        }
+
+        if ($this->shouldUseGs1Parser($barcodeType, $compiledRules['rules'])) {
+            $gs1Result = $this->gs1Parser->parse($normalizedData);
+
+            if (! $gs1Result['valid']) {
+                return $this->invalidResult($gs1Result['errors'], [
+                    'data' => $normalizedData,
+                ]);
+            }
+
+            return $this->validResult([
+                'data' => $gs1Result['encode_data'],
             ]);
         }
 
@@ -629,6 +644,11 @@ class BarcodeValidationService
 
                 return;
 
+            case 'gs1_datamatrix':
+                $compiled['gs1_datamatrix'] = $this->coerceBoolean($value) ?? true;
+
+                return;
+
             default:
                 $errors[] = $this->error(
                     'data_validation_rule_invalid',
@@ -650,6 +670,21 @@ class BarcodeValidationService
         }
 
         return trim($data);
+    }
+
+    protected function shouldUseGs1Parser(BarcodeType $barcodeType, array $rules): bool
+    {
+        $slug = strtolower(trim((string) $barcodeType->slug));
+
+        if (in_array($slug, ['gs1-datamatrix', 'gs1-data-matrix'], true)) {
+            return true;
+        }
+
+        if (! in_array($slug, ['data-matrix', 'datamatrix'], true)) {
+            return false;
+        }
+
+        return (bool) ($rules['gs1_datamatrix'] ?? false);
     }
 
     protected function findInvalidCharacters(string $value, string $allowedCharacters): array

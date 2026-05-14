@@ -987,6 +987,11 @@ Current status:
 - BarcodeValidationService exists as a pre-render-only validation layer
 - BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
 - Validation currently ignores unknown parameters safely and does not render, export, persist history/files or increment usage
+- GS1 DataMatrix parsing now exists as a dedicated `App\Services\Barcode\Gs1Parser` foundation
+- GS1 parsing is separate from entitlement, usage, billing, rendering and persistence
+- The parser distinguishes normal Data Matrix from GS1 DataMatrix and supports parenthesized AI input plus literal `\F` normalization
+- Only the supported short `01/21/93` and long `01/21/91/92` GS1 DataMatrix structures are implemented in this phase
+- Full GS1 AI catalog support and barcode rendering remain future work
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:

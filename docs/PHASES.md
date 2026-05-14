@@ -88,12 +88,14 @@ Completed in this cycle:
 - Read-only Subscription admin resource added for safe subscription visibility without payment-state mutation
 - BarcodeAccessService added as a pre-rendering access-control foundation for barcode types and export formats
 - BarcodeValidationService added as a pre-render-only validation foundation
+- GS1 DataMatrix parsing foundation added through `App\Services\Barcode\Gs1Parser`
 - BarcodeType admin UX expanded for export formats, required features, parameter schema and documentation metadata
 - Authenticated dashboard now shows real current plan and usage summary data without fake analytics
 
 Barcode validation foundation rules now aligned for later rendering work:
 
 - `BarcodeValidationService` validates payloads before rendering only
+- it may normalize explicitly signaled GS1 DataMatrix payloads through `Gs1Parser`
 - it does not render barcodes
 - it does not export files
 - it does not store barcode history
@@ -102,6 +104,8 @@ Barcode validation foundation rules now aligned for later rendering work:
 - it does not create `usage_counters`
 - it does not create `generated_barcodes` or `barcode_exports` records
 - unknown parameters are ignored safely during validation normalization
+- GS1 parsing remains separate from entitlement, usage, billing and rendering concerns
+- supported GS1 structures in this phase are limited to `01/21/93` and `01/21/91/92`
 
 Still remaining for Phase 1:
 
@@ -121,6 +125,7 @@ Prepared but not completed yet:
 - Phase 3 foundation exists at model, seeder and expanded barcode type admin resource level
 - Phase 6 pricing foundation exists at data model and public page level
 - Barcode validation exists before rendering, but the barcode rendering engine itself is still future work
+- GS1 parsing exists before rendering, but full GS1 AI coverage and GS1 rendering remain future work
 
 These phases remain pending because real commercial workflows and deeper admin UX are intentionally deferred.
 

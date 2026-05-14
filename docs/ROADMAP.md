@@ -55,6 +55,7 @@ Recently completed:
 - Read-only subscription resource for safe admin visibility
 - Barcode access foundation for barcode-type and export-format entitlement checks
 - Pre-render-only barcode validation foundation with no rendering, export, history or usage side effects
+- GS1 DataMatrix parse and normalization foundation separated into a dedicated barcode service
 - Expanded barcode type admin management for access and export metadata
 - Dashboard usage cards now backed by real usage counter summaries
 
@@ -92,6 +93,7 @@ Next build target:
 - Richer entitlement and usage summaries
 - Barcode type and export entitlement enforcement in upcoming rendering workflows
 - Wire the pre-render-only validation layer into future rendering flows without adding persistence or usage side effects
+- Expand GS1 support beyond the current short `01/21/93` and long `01/21/91/92` parser foundation when rendering and broader AI coverage become relevant
 - Usage reporting widgets driven by real counters
 
 ### Phase 3: Barcode Type and Parameter Management
