@@ -8,9 +8,12 @@ use App\Models\BarcodeType;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -94,7 +97,52 @@ class BarcodeTypeResource extends Resource
                             ->valueLabel('Rule value')
                             ->helperText('Use key/value validation metadata such as required=true or gs1_datamatrix=true. GS1 parsing is only activated by explicit slug/rule signals and does not imply rendering support.')
                             ->columnSpanFull(),
-                        KeyValue::make('parameter_schema')->columnSpanFull(),
+                        Repeater::make('parameter_schema')
+                            ->schema([
+                                TextInput::make('key')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->helperText('Stable parameter key consumed by future generator forms and validation.'),
+                                TextInput::make('label')
+                                    ->maxLength(255),
+                                Select::make('type')
+                                    ->required()
+                                    ->options([
+                                        'text' => 'Text',
+                                        'number' => 'Number',
+                                        'integer' => 'Integer',
+                                        'boolean' => 'Boolean',
+                                        'select' => 'Select',
+                                        'multi_select' => 'Multi select',
+                                        'color' => 'Color',
+                                    ]),
+                                Toggle::make('required')->default(false),
+                                TextInput::make('default')->maxLength(255),
+                                TextInput::make('min'),
+                                TextInput::make('max'),
+                                TagsInput::make('options')
+                                    ->separator(',')
+                                    ->visible(fn (callable $get): bool => in_array($get('type'), ['select', 'multi_select'], true))
+                                    ->helperText('Option values for select-based inputs.'),
+                                Select::make('available_features')
+                                    ->multiple()
+                                    ->options(fn (): array => Feature::query()->orderBy('sort_order')->pluck('name', 'key')->all())
+                                    ->searchable()
+                                    ->preload(),
+                                Textarea::make('help_text')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                                TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0),
+                            ])
+                            ->defaultItems(0)
+                            ->reorderable()
+                            ->collapsed()
+                            ->cloneable()
+                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? $state['key'] ?? null)
+                            ->helperText('Structured parameter definitions for future generator form and validation contracts. This metadata does not render or preview barcodes.')
+                            ->columnSpanFull(),
                         Textarea::make('documentation')->rows(4)->columnSpanFull(),
                         TextInput::make('seo_title')->maxLength(255),
                         Textarea::make('seo_description')->rows(3)->columnSpanFull(),

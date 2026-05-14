@@ -2,7 +2,6 @@
 
 namespace App\Services\Barcode;
 
-use App\Models\BarcodeParameter;
 use App\Models\BarcodeType;
 use App\Models\User;
 use App\Services\Usage\UsageLimitService;
@@ -32,6 +31,7 @@ class BarcodeValidationService
         protected BarcodeAccessService $barcodeAccessService,
         protected UsageLimitService $usageLimitService,
         protected Gs1Parser $gs1Parser,
+        protected ParameterSchemaResolver $parameterSchemaResolver,
     ) {}
 
     public function validateBarcodeType(User $user, BarcodeType $barcodeType): array
@@ -221,11 +221,20 @@ class BarcodeValidationService
 
     public function validateParameters(BarcodeType $barcodeType, array $parameters): array
     {
-        $resolvedDefinitions = $this->resolveParameterDefinitions($barcodeType);
-        $errors = $resolvedDefinitions['errors'];
+        $definitions = $this->parameterSchemaResolver->resolveFor($barcodeType);
+        $issues = $this->parameterSchemaResolver->issuesFor($barcodeType);
+        $errors = array_map(
+            fn (array $issue): array => $this->error(
+                'parameter_schema_invalid',
+                $issue['message'] ?? 'The barcode parameter configuration is invalid.',
+                'parameters',
+                ['context' => $issue['context'] ?? null],
+            ),
+            $issues,
+        );
         $normalizedParameters = [];
 
-        foreach ($resolvedDefinitions['definitions'] as $definition) {
+        foreach ($definitions as $definition) {
             $key = $definition['key'];
             $field = "parameters.{$key}";
             $hasProvidedValue = array_key_exists($key, $parameters);
@@ -704,162 +713,6 @@ class BarcodeValidationService
         }
 
         return array_values($invalidCharacters);
-    }
-
-    protected function resolveParameterDefinitions(BarcodeType $barcodeType): array
-    {
-        $definitions = [];
-        $errors = [];
-        $schema = $barcodeType->parameter_schema;
-
-        if ($schema !== null && $schema !== []) {
-            if (! is_array($schema)) {
-                $errors[] = $this->error(
-                    'parameter_schema_invalid',
-                    'The barcode parameter configuration is invalid.',
-                    'parameters',
-                );
-            } else {
-                foreach ($schema as $index => $definition) {
-                    if (! is_array($definition)) {
-                        $errors[] = $this->error(
-                            'parameter_schema_invalid',
-                            'The barcode parameter configuration is invalid.',
-                            'parameters',
-                            ['index' => $index],
-                        );
-
-                        continue;
-                    }
-
-                    $normalized = $this->normalizeParameterDefinitionArray($definition, "schema.{$index}");
-
-                    if ($normalized['definition'] === null) {
-                        $errors = array_merge($errors, $normalized['errors']);
-
-                        continue;
-                    }
-
-                    $definitions[$normalized['definition']['key']] = $normalized['definition'];
-                }
-            }
-        }
-
-        $activeParameters = $barcodeType->parameters()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
-
-        foreach ($activeParameters as $parameter) {
-            if (isset($definitions[$parameter->key])) {
-                continue;
-            }
-
-            $normalized = $this->normalizeBarcodeParameterModel($parameter);
-
-            if ($normalized['definition'] === null) {
-                $errors = array_merge($errors, $normalized['errors']);
-
-                continue;
-            }
-
-            $definitions[$normalized['definition']['key']] = $normalized['definition'];
-        }
-
-        return [
-            'definitions' => array_values($definitions),
-            'errors' => $errors,
-        ];
-    }
-
-    protected function normalizeParameterDefinitionArray(array $definition, string $context): array
-    {
-        $key = isset($definition['key']) && is_string($definition['key']) ? trim($definition['key']) : '';
-        $type = isset($definition['type']) && is_string($definition['type']) ? strtolower(trim($definition['type'])) : '';
-
-        if ($key === '' || $type === '' || ! $this->isSupportedParameterType($type)) {
-            return [
-                'definition' => null,
-                'errors' => [
-                    $this->error(
-                        'parameter_schema_invalid',
-                        'The barcode parameter configuration is invalid.',
-                        'parameters',
-                        ['context' => $context],
-                    ),
-                ],
-            ];
-        }
-
-        $hasDefault = array_key_exists('default', $definition);
-
-        return [
-            'definition' => [
-                'key' => $key,
-                'type' => $type,
-                'label' => is_string($definition['label'] ?? null) ? $definition['label'] : $key,
-                'required' => (bool) ($definition['required'] ?? false),
-                'has_default' => $hasDefault,
-                'default' => $hasDefault ? $definition['default'] : null,
-                'min' => $definition['min'] ?? null,
-                'max' => $definition['max'] ?? null,
-                'options' => $this->normalizeOptions($definition['options'] ?? null),
-            ],
-            'errors' => [],
-        ];
-    }
-
-    protected function normalizeBarcodeParameterModel(BarcodeParameter $parameter): array
-    {
-        $type = strtolower(trim((string) $parameter->type));
-
-        if ($parameter->key === '' || ! $this->isSupportedParameterType($type)) {
-            return [
-                'definition' => null,
-                'errors' => [
-                    $this->error(
-                        'parameter_schema_invalid',
-                        'The barcode parameter configuration is invalid.',
-                        'parameters',
-                        ['parameter' => $parameter->key],
-                    ),
-                ],
-            ];
-        }
-
-        $hasDefault = $parameter->default_value !== null && $parameter->default_value !== '';
-
-        return [
-            'definition' => [
-                'key' => $parameter->key,
-                'type' => $type,
-                'label' => $parameter->label ?: $parameter->key,
-                'required' => (bool) $parameter->is_required,
-                'has_default' => $hasDefault,
-                'default' => $hasDefault ? $parameter->default_value : null,
-                'min' => $parameter->min_value,
-                'max' => $parameter->max_value,
-                'options' => $this->normalizeOptions($parameter->options),
-            ],
-            'errors' => [],
-        ];
-    }
-
-    protected function normalizeOptions(mixed $options): array
-    {
-        if (! is_array($options)) {
-            return [];
-        }
-
-        $normalizedOptions = [];
-
-        foreach ($options as $option) {
-            if (is_string($option) || is_int($option) || is_float($option) || is_bool($option)) {
-                $normalizedOptions[] = (string) $option;
-            }
-        }
-
-        return array_values(array_unique($normalizedOptions));
     }
 
     protected function normalizeParameterValue(array $definition, mixed $value, string $field): array

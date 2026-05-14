@@ -621,6 +621,64 @@ class BarcodeValidationServiceTest extends TestCase
         ], $result['normalized']['parameters']);
     }
 
+    public function test_inactive_barcode_parameters_are_ignored_during_validation(): void
+    {
+        $this->seed();
+
+        $barcodeType = $this->makeBarcodeType();
+
+        BarcodeParameter::query()->create([
+            'barcode_type_id' => $barcodeType->id,
+            'label' => 'Foreground',
+            'key' => 'foreground_color',
+            'type' => 'color',
+            'default_value' => '#000000',
+            'is_required' => false,
+            'is_active' => false,
+            'options' => [],
+            'available_features' => [],
+            'metadata' => [],
+        ]);
+
+        $service = app(BarcodeValidationService::class);
+        $result = $service->validateParameters($barcodeType->fresh(), []);
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame([], $result['normalized']['parameters']);
+    }
+
+    public function test_barcode_parameter_definitions_still_validate_through_resolver_output(): void
+    {
+        $this->seed();
+
+        $barcodeType = $this->makeBarcodeType();
+
+        BarcodeParameter::query()->create([
+            'barcode_type_id' => $barcodeType->id,
+            'label' => 'Scale',
+            'key' => 'scale',
+            'type' => 'number',
+            'default_value' => '1.25',
+            'min_value' => '0.5',
+            'max_value' => '2.0',
+            'is_required' => false,
+            'is_active' => true,
+            'options' => [],
+            'available_features' => [],
+            'metadata' => [],
+        ]);
+
+        $service = app(BarcodeValidationService::class);
+
+        $valid = $service->validateParameters($barcodeType->fresh(), []);
+        $invalid = $service->validateParameters($barcodeType->fresh(), ['scale' => '3.5']);
+
+        $this->assertTrue($valid['valid']);
+        $this->assertSame(['scale' => 1.25], $valid['normalized']['parameters']);
+        $this->assertFalse($invalid['valid']);
+        $this->assertSame('parameter_too_high', $invalid['errors'][0]['code']);
+    }
+
     public function test_malformed_parameter_schema_returns_safe_error_without_crashing(): void
     {
         $this->seed();

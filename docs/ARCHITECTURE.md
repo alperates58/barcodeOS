@@ -442,6 +442,7 @@ Architecture direction:
 - barcode behavior should expand through shared services plus category-based renderer and validator strategies
 - GS1-specific parsing now plugs into the validation layer through `App\Services\Barcode\Gs1Parser` for explicitly signaled barcode types only
 - `gs1-datamatrix` is seeded as a dedicated GS1 barcode type, while normal `data-matrix` remains separate
+- Phase 3 uses `App\Services\Barcode\ParameterSchemaResolver` to turn raw barcode type schema and active parameter records into a shared generator-form contract
 
 Barcode parameters should include fields such as:
 
@@ -458,6 +459,7 @@ Barcode parameters should include fields such as:
 - available_features
 - sort_order
 - is_active
+- metadata
 
 ---
 
@@ -502,6 +504,7 @@ BarcodeValidationService:
 - Validates barcode type rules.
 - Validates dynamic parameters.
 - Runs before rendering only.
+- Consumes resolved schema from `App\Services\Barcode\ParameterSchemaResolver`.
 - May delegate GS1 DataMatrix parsing to `App\Services\Barcode\Gs1Parser` only for explicitly signaled barcode types.
 - Ignores unknown parameters safely during normalization.
 - Does not render or export output.
@@ -547,6 +550,8 @@ Current foundation note:
 - `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
 - it does not render, export, store files or increment usage
 - `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
+- authenticated app flows may read barcode type config through `/app/barcodes/types/{barcodeType:slug}/config`
+- that endpoint is read-only and returns resolved parameter schema, access info and export availability only
 - `Gs1Parser` is intentionally separate from entitlement, usage, billing and rendering so GS1 parsing remains deterministic and testable
 - GS1 DataMatrix rendering and export generation are still future work even though parser and seeded metadata now exist
 
@@ -914,6 +919,7 @@ resources/js/
 Frontend barcode direction:
 
 - future barcode UI work should follow a responsive feature-based structure under `resources/js/features/barcode/`
+- initial responsive barcode foundation components now live under that feature folder, but they are not yet connected to a live generator page
 - do not split barcode UI into a separate `mobile` folder
 - responsive behavior should be handled within shared feature components and layouts
 

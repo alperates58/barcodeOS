@@ -58,17 +58,21 @@ Recently completed:
 - GS1 DataMatrix parse and normalization foundation separated into a dedicated barcode service
 - Expanded barcode type admin management for access and export metadata
 - Dashboard usage cards now backed by real usage counter summaries
+- Phase 3 started with barcode parameter admin UX and generator config foundation
+- `App\Services\Barcode\ParameterSchemaResolver` now centralizes resolved parameter schema
+- Read-only barcode type config endpoint added for authenticated app flows without rendering
+- Responsive feature-based frontend barcode foundation added without wiring a live generator page
 
 Current phase:
 
-Phase 2 - Plans, Features and Usage Limits
+Phase 3 - Barcode Type and Parameter Management
 
 Roadmap interpretation:
 
 - Phase 0 is complete
 - Phase 1 is completed and strengthened
-- Phase 2 is current and in progress
-- Phase 3 has structural groundwork, but remains incomplete
+- Phase 2 foundation is largely complete
+- Phase 3 is current and in progress
 - The barcode rendering engine remains future work
 
 ---
@@ -107,11 +111,14 @@ Foundation already exists:
 - Parameters
 - Seeded initial catalog
 - Seeded GS1 DataMatrix metadata with separate normal Data Matrix behavior
+- Shared resolved parameter schema foundation for validation and future frontend form usage
+- Read-only barcode type config transport for authenticated app requests
 
 Next expansion:
 
 - Better parameter management UX
 - Deeper type documentation and validation admin tooling
+- Connect config-driven schema to a real generator page without implying rendering exists
 - Keep barcode types database-driven rather than splitting them into separate Laravel modules
 
 ---
