@@ -104,7 +104,7 @@ class SubscriptionResource extends Resource
     protected static function maskIdentifier(?string $value): string
     {
         if (blank($value)) {
-            return '—';
+            return 'N/A';
         }
 
         $length = strlen($value);
