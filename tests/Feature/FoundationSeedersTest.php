@@ -24,7 +24,7 @@ class FoundationSeedersTest extends TestCase
         $this->assertSame(5, Plan::query()->count());
         $this->assertSame(39, Feature::query()->count());
         $this->assertSame(6, BarcodeCategory::query()->count());
-        $this->assertSame(7, BarcodeType::query()->count());
+        $this->assertSame(8, BarcodeType::query()->count());
         $this->assertSame(5, PaymentProvider::query()->count());
     }
 }

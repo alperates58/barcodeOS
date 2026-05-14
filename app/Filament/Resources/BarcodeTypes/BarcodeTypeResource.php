@@ -9,7 +9,6 @@ use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
@@ -77,21 +76,23 @@ class BarcodeTypeResource extends Resource
                             ->options(static::exportFormatOptions())
                             ->searchable()
                             ->preload()
+                            ->helperText('Catalog metadata only. Supported formats here do not mean rendering or file generation is implemented yet.')
                             ->columnSpanFull(),
                         Select::make('required_features')
                             ->multiple()
                             ->options(fn (): array => Feature::query()->orderBy('sort_order')->pluck('name', 'key')->all())
                             ->searchable()
                             ->preload()
-                            ->helperText('Empty still requires the base barcode.generate entitlement.')
+                            ->helperText('Feature keys are enforced through entitlement checks. Empty still requires the base barcode.generate entitlement.')
                             ->columnSpanFull(),
                     ])
                     ->columns(4),
                 Section::make('Rules and documentation')
                     ->schema([
-                        TagsInput::make('validation_rules')
-                            ->separator(',')
-                            ->helperText('Use simple Laravel validation rule strings for this foundation step.')
+                        KeyValue::make('validation_rules')
+                            ->keyLabel('Rule key')
+                            ->valueLabel('Rule value')
+                            ->helperText('Use key/value validation metadata such as required=true or gs1_datamatrix=true. GS1 parsing is only activated by explicit slug/rule signals and does not imply rendering support.')
                             ->columnSpanFull(),
                         KeyValue::make('parameter_schema')->columnSpanFull(),
                         Textarea::make('documentation')->rows(4)->columnSpanFull(),

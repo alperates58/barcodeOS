@@ -10,15 +10,14 @@ BarcodeOS is being built incrementally. The current foundation intentionally sto
 
 Current phase:
 
-Phase 1 - SaaS Admin Foundation
+Phase 2 - Plans, Features and Usage Limits
 
 Current focus:
 
-- Harden admin access and admin-manageable system foundations
-- Strengthen admin-manageable plan, entitlement, subscription and usage visibility foundations
-- Keep plans, features and barcode catalog ready for the next implementation phases
-- Prepare secure deployment operations without unsafe in-container shell execution
-- Keep barcode validation pre-render only while the barcode rendering engine remains future work
+- Keep entitlement, usage and barcode validation foundations side-effect-free before rendering
+- Strengthen barcode catalog metadata and GS1 access rules through admin-manageable configuration
+- Prepare barcode type and parameter management for the next phase without enabling rendering
+- Keep secure deployment and admin foundations stable while deeper barcode workflows remain future work
 
 ---
 
@@ -27,10 +26,10 @@ Current focus:
 | Phase | Name | Status |
 |---|---|---|
 | Phase 0 | Project Foundation | Completed |
-| Phase 1 | SaaS Admin Foundation | Strengthened |
-| Phase 2 | Plans, Features and Usage Limits | Foundation Exists |
-| Phase 3 | Barcode Type and Parameter Management | Pending |
-| Phase 4 | Barcode Generation Engine | Future Work |
+| Phase 1 | SaaS Admin Foundation | Completed / Strengthened |
+| Phase 2 | Plans, Features and Usage Limits | Current / In Progress |
+| Phase 3 | Barcode Type and Parameter Management | Pending / Next |
+| Phase 4 | Barcode Generation Engine | Pending |
 | Phase 5 | User Dashboard and History | Pending |
 | Phase 6 | Pricing and Billing Foundation | Pending |
 | Phase 7 | Stripe Subscription Integration | Pending |
@@ -122,10 +121,11 @@ Still remaining for Phase 1:
 Prepared but not completed yet:
 
 - Phase 2 foundation now exists at model, seeder, service and admin UX level for plans, entitlements, subscriptions and usage counters
+- Phase 2 now also includes seeded GS1 DataMatrix metadata and entitlement-gated GS1 validation access
 - Phase 3 foundation exists at model, seeder and expanded barcode type admin resource level
 - Phase 6 pricing foundation exists at data model and public page level
 - Barcode validation exists before rendering, but the barcode rendering engine itself is still future work
-- GS1 parsing exists before rendering, but full GS1 AI coverage and GS1 rendering remain future work
+- GS1 parsing exists before rendering, including explicit `gs1-datamatrix` seed metadata, but full GS1 AI coverage and GS1 rendering remain future work
 
 These phases remain pending because real commercial workflows and deeper admin UX are intentionally deferred.
 
@@ -135,14 +135,14 @@ These phases remain pending because real commercial workflows and deeper admin U
 
 Recommended next task:
 
-Phase 2 - Plans, Features and Usage Limits
+Phase 3 - Barcode Type and Parameter Management
 
 Safe implementation target:
 
-- Connect BarcodeAccessService into the first real generation/export workflow when rendering begins
-- Keep `BarcodeValidationService` side-effect-free as it is wired into future rendering flows
-- Expand usage summaries and reporting widgets with real usage counter queries
-- Add audit log resource and role/permission management pages
+- Improve barcode parameter admin UX and generator form foundations without adding rendering
+- Keep `BarcodeValidationService` side-effect-free as future UI flows start consuming seeded barcode metadata
+- Expand admin documentation support around barcode type configuration and GS1 rules
+- Add audit log resource and role/permission management pages in parallel when safe
 
 ---
 

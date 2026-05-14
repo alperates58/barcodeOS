@@ -840,6 +840,8 @@ Current implementation note:
 - `barcode.generate` is always treated as the base required feature, even when a barcode type has no explicit `required_features`
 - multiple `required_features` are enforced with AND logic
 - barcode types remain database-driven records, not separate Laravel modules
+- `gs1-datamatrix` is seeded as a separate barcode type and requires `gs1.advanced`
+- normal `data-matrix` remains a standard Data Matrix type and is not treated as GS1 unless explicitly configured
 
 ---
 
@@ -988,10 +990,13 @@ Current status:
 - BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
 - Validation currently ignores unknown parameters safely and does not render, export, persist history/files or increment usage
 - GS1 DataMatrix parsing now exists as a dedicated `App\Services\Barcode\Gs1Parser` foundation
+- GS1 DataMatrix is seeded as a dedicated barcode type under the GS1 category with explicit validation metadata
 - GS1 parsing is separate from entitlement, usage, billing, rendering and persistence
 - The parser distinguishes normal Data Matrix from GS1 DataMatrix and supports parenthesized AI input plus literal `\F` normalization
+- GS1 parsing is activated only by explicit barcode type slug signals or `validation_rules.gs1_datamatrix=true`
 - Only the supported short `01/21/93` and long `01/21/91/92` GS1 DataMatrix structures are implemented in this phase
 - Full GS1 AI catalog support and barcode rendering remain future work
+- No PNG, SVG, PDF, EPS or ZIP generation is implemented yet; export format metadata remains admin-manageable catalog configuration only
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:

@@ -61,13 +61,13 @@ Recently completed:
 
 Current phase:
 
-Phase 1 - SaaS Admin Foundation
+Phase 2 - Plans, Features and Usage Limits
 
 Roadmap interpretation:
 
 - Phase 0 is complete
-- Phase 1 has been strengthened
-- Phase 2 foundation exists, but the phase is not complete
+- Phase 1 is completed and strengthened
+- Phase 2 is current and in progress
 - Phase 3 has structural groundwork, but remains incomplete
 - The barcode rendering engine remains future work
 
@@ -91,6 +91,8 @@ Next build target:
 
 - Subscription reporting polish and possible safe detail views
 - Richer entitlement and usage summaries
+- Keep GS1 advanced barcode access entitlement-driven through seeded barcode type metadata
+- Keep GS1 parser usage explicit through `gs1-datamatrix` slug or `validation_rules.gs1_datamatrix=true`
 - Barcode type and export entitlement enforcement in upcoming rendering workflows
 - Wire the pre-render-only validation layer into future rendering flows without adding persistence or usage side effects
 - Expand GS1 support beyond the current short `01/21/93` and long `01/21/91/92` parser foundation when rendering and broader AI coverage become relevant
@@ -104,6 +106,7 @@ Foundation already exists:
 - Types
 - Parameters
 - Seeded initial catalog
+- Seeded GS1 DataMatrix metadata with separate normal Data Matrix behavior
 
 Next expansion:
 

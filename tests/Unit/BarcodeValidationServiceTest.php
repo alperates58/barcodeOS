@@ -659,14 +659,42 @@ class BarcodeValidationServiceTest extends TestCase
 
         $service = app(BarcodeValidationService::class);
         $barcodeType = BarcodeType::query()->where('slug', 'data-matrix')->firstOrFail();
-        $barcodeType->update([
-            'validation_rules' => ['gs1_datamatrix' => true],
-        ]);
-
-        $result = $service->validateData($barcodeType->fresh(), 'DMX-42-ALPHA');
+        $result = $service->validateData($barcodeType, 'DMX-42-ALPHA');
 
         $this->assertTrue($result['valid']);
         $this->assertSame('DMX-42-ALPHA', $result['normalized']['data']);
+    }
+
+    public function test_seeded_gs1_datamatrix_accepts_valid_short_gs1_input(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $result = $service->validateData($barcodeType, '011234567890123421ABC12393XYZ');
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame(
+            Gs1Parser::GS.'011234567890123421ABC123'.Gs1Parser::GS.'93XYZ',
+            $result['normalized']['data']
+        );
+    }
+
+    public function test_seeded_gs1_datamatrix_accepts_valid_long_gs1_input(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $result = $service->validateData($barcodeType, '011234567890123421ABC12391VAL192VAL2');
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame(
+            Gs1Parser::GS.'011234567890123421ABC123'.Gs1Parser::GS.'91VAL1'.Gs1Parser::GS.'92VAL2',
+            $result['normalized']['data']
+        );
     }
 
     public function test_gs1_parser_errors_are_mapped_into_common_validation_result_structure(): void
@@ -675,7 +703,7 @@ class BarcodeValidationServiceTest extends TestCase
 
         $service = app(BarcodeValidationService::class);
         $barcodeType = $this->makeBarcodeType([
-            'slug' => 'gs1-datamatrix',
+            'slug' => 'gs1-data-matrix',
             'validation_rules' => ['gs1_datamatrix' => true],
         ]);
 
@@ -684,6 +712,19 @@ class BarcodeValidationServiceTest extends TestCase
         $this->assertFalse($result['valid']);
         $this->assertSame('missing_ai_92', $result['errors'][0]['code']);
         $this->assertSame('data', $result['errors'][0]['field']);
+    }
+
+    public function test_seeded_gs1_datamatrix_returns_parser_errors_for_invalid_gs1_input(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $result = $service->validateData($barcodeType, '011234567890123421ABC12391VAL1');
+
+        $this->assertFalse($result['valid']);
+        $this->assertSame('missing_ai_92', $result['errors'][0]['code']);
     }
 
     public function test_valid_gs1_datamatrix_passes_validation_without_rendering(): void
@@ -706,6 +747,33 @@ class BarcodeValidationServiceTest extends TestCase
         $this->assertSame(0, UsageCounter::query()->count());
         $this->assertSame(0, GeneratedBarcode::query()->count());
         $this->assertSame(0, BarcodeExport::query()->count());
+    }
+
+    public function test_user_without_gs1_advanced_cannot_validate_seeded_gs1_datamatrix_type(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $user = User::factory()->create();
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $result = $service->validateBarcodeType($user, $barcodeType);
+
+        $this->assertFalse($result['valid']);
+        $this->assertSame('barcode_type_not_allowed', $result['errors'][0]['code']);
+    }
+
+    public function test_user_with_gs1_advanced_can_validate_seeded_gs1_datamatrix_type(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeValidationService::class);
+        $user = $this->makeSubscribedUser('business');
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $result = $service->validateBarcodeType($user, $barcodeType);
+
+        $this->assertTrue($result['valid']);
     }
 
     protected function makeSubscribedUser(string $planSlug): User

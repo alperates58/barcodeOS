@@ -148,4 +148,37 @@ class BarcodeAccessServiceTest extends TestCase
 
         $this->assertTrue($service->canUseBarcodeType($user, $barcodeType->fresh()));
     }
+
+    public function test_user_without_gs1_advanced_cannot_use_seeded_gs1_datamatrix(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeAccessService::class);
+        $user = User::factory()->create();
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        $this->assertFalse($service->canUseBarcodeType($user, $barcodeType));
+        $this->assertSame(['gs1.advanced'], $service->missingBarcodeTypeFeatures($user, $barcodeType));
+    }
+
+    public function test_user_with_gs1_advanced_can_use_seeded_gs1_datamatrix(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeAccessService::class);
+        $user = User::factory()->create();
+        $plan = Plan::query()->where('slug', 'business')->firstOrFail();
+        $barcodeType = BarcodeType::query()->where('slug', 'gs1-datamatrix')->firstOrFail();
+
+        Subscription::query()->create([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+            'current_period_starts_at' => now()->subDay(),
+            'current_period_ends_at' => now()->addMonth(),
+        ]);
+
+        $this->assertTrue($service->canUseBarcodeType($user, $barcodeType));
+        $this->assertSame([], $service->missingBarcodeTypeFeatures($user, $barcodeType));
+    }
 }

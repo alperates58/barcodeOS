@@ -440,7 +440,8 @@ Architecture direction:
 
 - barcode types are database-driven records, not separate Laravel modules
 - barcode behavior should expand through shared services plus category-based renderer and validator strategies
-- GS1-specific parsing may later plug into the validation layer through a dedicated parser integration point, but no parser implementation is part of the current phase
+- GS1-specific parsing now plugs into the validation layer through `App\Services\Barcode\Gs1Parser` for explicitly signaled barcode types only
+- `gs1-datamatrix` is seeded as a dedicated GS1 barcode type, while normal `data-matrix` remains separate
 
 Barcode parameters should include fields such as:
 
@@ -547,6 +548,7 @@ Current foundation note:
 - it does not render, export, store files or increment usage
 - `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
 - `Gs1Parser` is intentionally separate from entitlement, usage, billing and rendering so GS1 parsing remains deterministic and testable
+- GS1 DataMatrix rendering and export generation are still future work even though parser and seeded metadata now exist
 
 ---
 
