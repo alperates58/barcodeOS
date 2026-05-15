@@ -35,7 +35,9 @@ Current implementation note:
 - the homepage is the canonical public discovery surface in Phase 3
 - public `Barcode Generator` and `API` navigation links currently use homepage anchors rather than separate public routes
 - the public generator landing panel is intentionally read-only and non-rendering
-- rendering, downloads and export previews remain Phase 4 work
+- Phase 4.1 adds only authenticated QR Code in-memory SVG preview
+- the public generator landing panel still does not render, download or export anything
+- broader rendering, downloads and export previews remain later Phase 4 work
 
 ### User Application
 
@@ -193,11 +195,11 @@ Current implementation note:
 8. Backend checks usage limit.
 9. Backend validates barcode data.
 10. Backend validates barcode parameters.
-11. Backend renders barcode.
-12. Backend stores generated barcode history if allowed.
-13. Backend stores export file if needed.
-14. Backend increments usage counter.
-15. Backend returns preview/download response.
+11. Phase 4.1 renders only QR Code preview as in-memory SVG.
+12. The response returns preview data only for supported QR requests.
+13. No persistence occurs in Phase 4.1.
+14. No file storage or download response occurs in Phase 4.1.
+15. No usage increment occurs in Phase 4.1.
 
 ### API Barcode Generation Flow
 
@@ -523,19 +525,19 @@ BarcodeValidationService:
 BarcodeGenerationService:
 
 - Lives in `App\Services\Barcode\BarcodeGenerationService`.
-- Acts as a Phase 3 coordinator skeleton only.
+- Acts as a Phase 4.1 coordinator with a narrow first renderer slice.
 - Calls `BarcodeValidationService::validateGenerationRequest(...)`.
 - Preserves the normalized validation payload in a stable generation result contract.
 - Checks `BarcodeTypeRegistry` for renderer availability after validation passes.
 - Returns `validation_failed` when validation fails.
-- Returns `renderer_not_supported` when no renderer is available.
-- May return `ready_for_render` in future-safe scenarios, but does not render in this phase.
-- Does not call renderer implementations in Phase 3.
+- Returns `renderer_not_supported` for non-QR barcode types in Phase 4.1.
+- Produces QR Code in-memory SVG preview only.
 - Does not export output.
 - Does not store barcode history or files.
 - Does not create `usage_counters`.
 - Does not create `generated_barcodes` or `barcode_exports`.
 - Does not increment usage.
+- Does not expose download behavior.
 
 Gs1Parser:
 
@@ -574,8 +576,9 @@ Current foundation note:
 - `BarcodeAccessService` may be used before rendering to validate barcode-type and export-format entitlement access
 - it does not render, export, store files or increment usage
 - `BarcodeValidationService` is also pre-render only and intentionally side-effect-free
-- `BarcodeGenerationService` is a coordinator skeleton that currently validates and checks renderer availability only
-- it does not call renderers, create records, create files or increment usage
+- `BarcodeGenerationService` now begins Phase 4.1 with QR Code in-memory SVG preview only
+- non-QR barcode types must still return `renderer_not_supported`
+- it must not create records, create files, expose downloads or increment usage
 - authenticated app flows may read barcode type config through `/app/barcodes/types/{barcodeType:slug}/config`
 - that endpoint is read-only and returns resolved parameter schema, access info and export availability only
 - `Gs1Parser` is intentionally separate from entitlement, usage, billing and rendering so GS1 parsing remains deterministic and testable
@@ -949,10 +952,12 @@ Frontend barcode direction:
 - Phase 3 now connects those components to an authenticated Inertia generator page
 - the generator page uses the live config endpoint client-side and exposes a config-driven dynamic parameter form
 - validate-only user flow is active through a dedicated authenticated endpoint
-- the generator UI still remains validate-only while generation coordination stays service-only
+- Phase 4.1 may show QR Code in-memory SVG preview only
+- the generator UI must not offer persistence, file storage or download behavior in Phase 4.1
+- non-QR barcode types should continue surfacing `renderer_not_supported`
 - the public homepage now exposes a separate non-rendering discovery panel that uses only controller-provided database data
 - the public homepage does not call config or validate endpoints
-- rendering, export and history persistence remain future work
+- export, history persistence, downloads and non-QR rendering remain future work
 - do not split barcode UI into a separate `mobile` folder
 - responsive behavior should be handled within shared feature components and layouts
 

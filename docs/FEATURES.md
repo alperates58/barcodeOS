@@ -806,6 +806,10 @@ Validation boundary note:
 - validation must not create `usage_counters`
 - validation must not create `generated_barcodes` or `barcode_exports`
 - unknown parameters should be ignored safely unless a barcode type explicitly promotes them into supported schema later
+- Phase 4.1 preview success must remain side-effect-free as well
+- Phase 4.1 preview must not persist history
+- Phase 4.1 preview must not store files
+- Phase 4.1 preview must not expose download behavior
 
 ---
 
@@ -843,6 +847,7 @@ Current implementation note:
 - `gs1-datamatrix` is seeded as a separate barcode type and requires `gs1.advanced`
 - normal `data-matrix` remains a standard Data Matrix type and is not treated as GS1 unless explicitly configured
 - authenticated app flows can now fetch read-only barcode type config, including resolved parameter schema and export entitlement metadata
+- Phase 4.1 adds renderer support only for QR Code preview, while other barcode types still return `renderer_not_supported`
 
 ---
 
@@ -991,7 +996,15 @@ Current status:
 - BarcodeGenerationService exists as a coordinator skeleton that currently performs validation plus renderer availability checks only
 - BarcodeAccessService exists as a pre-rendering access foundation, but no barcode rendering engine is implemented yet
 - Validation currently ignores unknown parameters safely and does not render, export, persist history/files or increment usage
-- BarcodeGenerationService currently does not render, export, persist history/files or increment usage
+- Phase 4 has started through Phase 4.1
+- Phase 4.1 adds QR Code in-memory SVG preview only
+- no persistence is allowed in Phase 4.1
+- no file storage is allowed in Phase 4.1
+- no download is allowed in Phase 4.1
+- no `generated_barcodes` records are created in Phase 4.1
+- no `barcode_exports` records are created in Phase 4.1
+- no usage increment is allowed in Phase 4.1
+- other barcode types still return `renderer_not_supported`
 - `App\Services\Barcode\ParameterSchemaResolver` now makes `barcode_types.parameter_schema` the primary source and active `barcode_parameters` the complementary source
 - future generator UI foundations are expected to consume the resolved parameter schema instead of raw admin storage structures
 - GS1 DataMatrix parsing now exists as a dedicated `App\Services\Barcode\Gs1Parser` foundation
@@ -1011,12 +1024,12 @@ Current status:
 - the public generator landing panel is read-only and non-rendering
 - the public homepage does not call config or validate endpoints
 - public `Barcode Generator` and `API` navigation links use homepage anchors
-- rendering, download and export output remain Phase 4 work
+- downloads, export output, persistence and non-QR rendering remain later Phase 4 work
 - Deeper integration into barcode generation, export and API workflows remains pending
 
 Next implementation target:
 
-- Expand safe subscription administration visibility as needed.
+- Expand renderer support beyond QR Code only after the Phase 4.1 preview boundary remains stable.
 - Enforce feature checks in barcode/export workflows as later phases activate.
 - Introduce shared barcode rendering and validation expansion points by category instead of separate Laravel modules per barcode type.
-- Expand usage reporting and entitlement-driven UI messaging.
+- Expand usage reporting and entitlement-driven UI messaging after real successful-generation accounting exists.

@@ -2,7 +2,7 @@
 
 This document tracks the actual implementation status of BarcodeOS.
 
-BarcodeOS is being built incrementally. The current foundation intentionally stops before real payment flow, barcode rendering, bulk generation, API generation and a full translation editor.
+BarcodeOS is being built incrementally. The current foundation intentionally stops before real payment flow, broad barcode rendering coverage, bulk generation, API generation and a full translation editor.
 
 ---
 
@@ -10,17 +10,17 @@ BarcodeOS is being built incrementally. The current foundation intentionally sto
 
 Current phase:
 
-Phase 3 - Barcode Type and Parameter Management
+Phase 4 - Barcode Generation Engine
 
 Current focus:
 
-- Strengthen barcode parameter admin UX and generator config foundation without enabling rendering
-- Reuse resolved parameter schema across validation and future frontend form flows
-- Keep config transport read-only and render-free for authenticated app usage
-- Expand the public homepage into a modern SaaS discovery surface with a non-rendering generator landing foundation
-- Keep secure deployment and admin foundations stable while rendering remains future work
+- Start Phase 4 with a tightly scoped Phase 4.1 renderer slice
+- Allow QR Code in-memory SVG preview only
+- Keep generation side effects disabled while renderer orchestration begins
+- Preserve Phase 3 validation, parameter schema and access-control foundations
+- Keep secure deployment and admin foundations stable while full rendering, export and persistence remain future work
 
-Phase 3 is complete enough to start Phase 4 rendering work.
+Phase 3 is complete enough, and Phase 4 has now started through Phase 4.1.
 
 ---
 
@@ -32,7 +32,7 @@ Phase 3 is complete enough to start Phase 4 rendering work.
 | Phase 1 | SaaS Admin Foundation | Completed / Strengthened |
 | Phase 2 | Plans, Features and Usage Limits | Completed Foundation |
 | Phase 3 | Barcode Type and Parameter Management | Complete Enough / Closure Audited |
-| Phase 4 | Barcode Generation Engine | Next / Rendering Engine |
+| Phase 4 | Barcode Generation Engine | Started / Phase 4.1 Active |
 | Phase 5 | User Dashboard and History | Pending |
 | Phase 6 | Pricing and Billing Foundation | Pending |
 | Phase 7 | Stripe Subscription Integration | Pending |
@@ -154,6 +154,36 @@ Important current rules:
 - no `generated_barcodes` or `barcode_exports` records are created
 - rendering is still future work
 
+---
+
+## Phase 4 Progress
+
+Phase 4 has started with the limited Phase 4.1 QR preview slice.
+
+Phase 4.1 scope:
+
+- QR Code is the only barcode type entering renderer support in this slice
+- output is limited to in-memory SVG preview only
+- preview is intended only for immediate response rendering
+- no persistence is allowed in this slice
+- no file storage is allowed in this slice
+- no download is allowed in this slice
+- no `generated_barcodes` records are created
+- no `barcode_exports` records are created
+- no usage increment is allowed in this slice
+- no `usage_counters` are created or updated by preview success
+- other barcode types must still return `renderer_not_supported`
+
+Phase 4.1 intentionally does not include:
+
+- barcode history persistence
+- export workflows
+- secure file references
+- PNG, PDF, EPS or ZIP output
+- retention workflows
+- background generation jobs
+- API generation
+
 Non-blocking Phase 3 backlog:
 
 - upgrade messaging polish
@@ -171,8 +201,9 @@ Prepared but not completed yet:
 - Phase 2 foundation now exists at model, seeder, service and admin UX level for plans, entitlements, subscriptions and usage counters
 - Phase 2 now also includes seeded GS1 DataMatrix metadata and entitlement-gated GS1 validation access
 - Phase 3 foundation now includes parameter resolution, admin UX improvements and read-only generator config transport
+- Phase 4.1 begins renderer work with QR Code in-memory SVG preview only
 - Phase 6 pricing foundation exists at data model and public page level
-- Barcode validation exists before rendering, but the barcode rendering engine itself is still future work
+- Barcode validation exists before rendering, and Phase 4.1 now introduces only the first narrow preview renderer slice
 - GS1 parsing exists before rendering, including explicit `gs1-datamatrix` seed metadata, but full GS1 AI coverage and GS1 rendering remain future work
 
 These phases remain pending because real commercial workflows and deeper admin UX are intentionally deferred.
@@ -183,16 +214,19 @@ These phases remain pending because real commercial workflows and deeper admin U
 
 Recommended next task:
 
-Phase 4 - Barcode Generation Engine
+Phase 4.1 - QR Code in-memory SVG preview
 
 Safe implementation target:
 
 - QR Code renderer with in-memory SVG output only
+- Preview only, with no download response path
 - No history persistence
 - No file persistence
+- No file storage
 - No `generated_barcodes`
 - No `barcode_exports`
 - No usage increment
+- Other barcode types continue returning `renderer_not_supported`
 
 ---
 
@@ -201,7 +235,7 @@ Safe implementation target:
 Still intentionally excluded:
 
 - Real payment flow
-- Barcode rendering engine
+- Broad multi-type barcode rendering engine
 - Bulk generation workflow
 - API barcode generation
 - Full translation editor

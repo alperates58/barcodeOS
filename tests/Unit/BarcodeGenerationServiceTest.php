@@ -27,13 +27,14 @@ class BarcodeGenerationServiceTest extends TestCase
         $user = User::factory()->create();
         $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
 
-        $result = $service->generate($user, $barcodeType, '   ', 'png');
+        $result = $service->generate($user, $barcodeType, '   ', 'svg');
 
         $this->assertFalse($result['success']);
         $this->assertSame('validation_failed', $result['status']);
         $this->assertFalse($result['validation']['valid']);
         $this->assertSame('data_required', $result['error']['code']);
         $this->assertSame([], $result['normalized']['parameters']);
+        $this->assertNull($result['rendered']);
     }
 
     public function test_valid_request_with_unsupported_renderer_returns_renderer_not_supported(): void
@@ -44,12 +45,13 @@ class BarcodeGenerationServiceTest extends TestCase
         $user = User::factory()->create();
         $barcodeType = BarcodeType::query()->where('slug', 'data-matrix')->firstOrFail();
 
-        $result = $service->generate($user, $barcodeType, 'DMX-42-ALPHA', 'png');
+        $result = $service->generate($user, $barcodeType, 'DMX-42-ALPHA', 'svg');
 
         $this->assertFalse($result['success']);
         $this->assertSame('renderer_not_supported', $result['status']);
         $this->assertTrue($result['validation']['valid']);
         $this->assertSame('renderer_not_supported', $result['error']['code']);
+        $this->assertNull($result['rendered']);
     }
 
     public function test_normalized_payload_is_preserved(): void
@@ -70,15 +72,47 @@ class BarcodeGenerationServiceTest extends TestCase
             ],
         ]);
 
-        $result = $service->generate($user, $barcodeType, '  HELLO-42  ', ' PNG ', [
+        $result = $service->generate($user, $barcodeType, '  HELLO-42  ', ' SVG ', [
             'width' => '420',
             'ignored' => 'value',
         ]);
 
         $this->assertSame($result['validation']['normalized'], $result['normalized']);
         $this->assertSame('HELLO-42', $result['normalized']['data']);
-        $this->assertSame('png', $result['normalized']['format']);
+        $this->assertSame('svg', $result['normalized']['format']);
         $this->assertSame(['width' => 420], $result['normalized']['parameters']);
+    }
+
+    public function test_valid_qr_svg_request_returns_rendered_payload(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeGenerationService::class);
+        $user = User::factory()->create();
+        $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
+
+        $result = $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('rendered', $result['status']);
+        $this->assertSame('svg', $result['rendered']['format']);
+        $this->assertSame('image/svg+xml', $result['rendered']['mime_type']);
+        $this->assertStringContainsString('<svg', $result['rendered']['content']);
+    }
+
+    public function test_generation_service_returns_renderer_not_supported_for_code_128(): void
+    {
+        $this->seed();
+
+        $service = app(BarcodeGenerationService::class);
+        $user = User::factory()->create();
+        $barcodeType = BarcodeType::query()->where('slug', 'code-128')->firstOrFail();
+
+        $result = $service->generate($user, $barcodeType, 'CODE128-42', 'svg');
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('renderer_not_supported', $result['status']);
+        $this->assertNull($result['rendered']);
     }
 
     public function test_generation_service_does_not_create_usage_counters(): void
@@ -89,7 +123,7 @@ class BarcodeGenerationServiceTest extends TestCase
         $user = User::factory()->create();
         $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
 
-        $service->generate($user, $barcodeType, 'HELLO-42', 'png');
+        $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
 
         $this->assertSame(0, UsageCounter::query()->count());
     }
@@ -116,7 +150,7 @@ class BarcodeGenerationServiceTest extends TestCase
             'metadata' => [],
         ]);
 
-        $service->generate($user, $barcodeType, 'HELLO-42', 'png');
+        $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
 
         $counter = UsageCounter::query()->where('feature_key', 'daily_generation_limit')->firstOrFail();
 
@@ -131,7 +165,7 @@ class BarcodeGenerationServiceTest extends TestCase
         $user = User::factory()->create();
         $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
 
-        $service->generate($user, $barcodeType, 'HELLO-42', 'png');
+        $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
 
         $this->assertSame(0, GeneratedBarcode::query()->count());
     }
@@ -144,35 +178,26 @@ class BarcodeGenerationServiceTest extends TestCase
         $user = User::factory()->create();
         $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
 
-        $service->generate($user, $barcodeType, 'HELLO-42', 'png');
+        $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
 
         $this->assertSame(0, BarcodeExport::query()->count());
     }
 
-    public function test_renderer_implementation_is_not_called_even_when_registry_reports_support(): void
+    public function test_render_success_does_not_create_persistence_records(): void
     {
         $this->seed();
 
-        FakeTestBarcodeRenderer::$wasCalled = false;
-
-        $registry = $this->mock(BarcodeTypeRegistry::class);
-        $registry->shouldReceive('hasRendererFor')
-            ->once()
-            ->with('fake-supported')
-            ->andReturn(true);
-
         $service = app(BarcodeGenerationService::class);
         $user = User::factory()->create();
-        $barcodeType = $this->makeBarcodeType([
-            'slug' => 'fake-supported',
-        ]);
+        $barcodeType = BarcodeType::query()->where('slug', 'qr-code')->firstOrFail();
 
-        $result = $service->generate($user, $barcodeType, 'HELLO-42', 'png');
+        $result = $service->generate($user, $barcodeType, 'HELLO-42', 'svg');
 
         $this->assertTrue($result['success']);
-        $this->assertSame('ready_for_render', $result['status']);
-        $this->assertNull($result['error']);
-        $this->assertFalse(FakeTestBarcodeRenderer::$wasCalled);
+        $this->assertSame('rendered', $result['status']);
+        $this->assertSame(0, UsageCounter::query()->count());
+        $this->assertSame(0, GeneratedBarcode::query()->count());
+        $this->assertSame(0, BarcodeExport::query()->count());
     }
 
     protected function makeBarcodeType(array $overrides = []): BarcodeType
@@ -191,17 +216,5 @@ class BarcodeGenerationServiceTest extends TestCase
             'parameter_schema' => [],
             'metadata' => [],
         ], $overrides));
-    }
-}
-
-class FakeTestBarcodeRenderer implements BarcodeRendererInterface
-{
-    public static bool $wasCalled = false;
-
-    public function render(string $data, array $parameters = []): mixed
-    {
-        self::$wasCalled = true;
-
-        return null;
     }
 }

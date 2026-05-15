@@ -27,7 +27,7 @@ Current priority:
 2. Complete plan-feature management UX
 3. Prepare subscription and usage administration
 4. Keep barcode catalog management admin-driven
-5. Delay real barcode rendering and billing flows until foundations are stable
+5. Start Phase 4 only through a tightly scoped QR preview slice while keeping billing and wider rendering flows deferred
 
 This means the roadmap still prioritizes business control, admin manageability and safe deployment over feature breadth.
 
@@ -69,10 +69,11 @@ Recently completed:
 - Phase 3 public homepage + generator landing foundation added as a modern SaaS discovery layer
 - Public homepage now uses active barcode catalog data and public plan data without calling validation or generation flows
 - Public `Barcode Generator` and `API` navigation now route to homepage anchors instead of separate public pages
+- Phase 4 has started through Phase 4.1 with QR Code in-memory SVG preview as the first rendering slice only
 
 Current phase:
 
-Phase 3 - Barcode Type and Parameter Management
+Phase 4 - Barcode Generation Engine
 
 Roadmap interpretation:
 
@@ -80,10 +81,10 @@ Roadmap interpretation:
 - Phase 1 is completed and strengthened
 - Phase 2 foundation is largely complete
 - Phase 3 is complete enough and closure audited
-- Phase 4 is next and begins the rendering engine work
-- The barcode rendering engine remains future work
+- Phase 4 has started through Phase 4.1
+- broad barcode rendering coverage remains future work
 
-Phase 3 is complete enough to start Phase 4 rendering work.
+Phase 3 is complete enough, and Phase 4 is now active.
 
 ---
 
@@ -95,36 +96,37 @@ Phase 3 is complete enough to start Phase 4 rendering work.
 - Phase 1: Completed / strengthened
 - Phase 2: Completed foundation
 - Phase 3: Complete enough / closure audited
-- Phase 4: Next / Rendering Engine
+- Phase 4: Started / Phase 4.1 QR Preview
 
-### Phase 3: Barcode Type and Parameter Management
+### Phase 4.1: QR Code In-Memory SVG Preview
 
-Foundation already exists:
+Phase 4 starts with a narrow first renderer slice:
 
-- Categories
-- Types
-- Parameters
-- Seeded initial catalog
-- Seeded GS1 DataMatrix metadata with separate normal Data Matrix behavior
-- Shared resolved parameter schema foundation for validation and future frontend form usage
-- Read-only barcode type config transport for authenticated app requests
+- QR Code is the only renderer-enabled barcode type in this slice
+- Response output is in-memory SVG preview only
+- No persistence is allowed
+- No file storage is allowed
+- No download is allowed
+- No `generated_barcodes` records are created
+- No `barcode_exports` records are created
+- No usage increment is allowed
+- Other barcode types must still return `renderer_not_supported`
 
-Next expansion:
+Phase 4.1 depends on existing foundation from earlier phases:
 
-- Better parameter management UX
-- Deeper type documentation and validation admin tooling
-- Build on the validate-only generator page without implying rendering exists
-- Continue turning the public website into a trustworthy discovery layer without introducing fake preview or download behavior
-- Keep `BarcodeGenerationService` side-effect-free until Phase 4 introduces real rendering orchestration
-- Keep barcode types database-driven rather than splitting them into separate Laravel modules
+- Barcode catalog management remains database-driven
+- Parameter schema resolution already exists
+- Validation is already side-effect-free
+- Access-control and usage-limit services already exist
+- Generator page foundation already exists for authenticated app flows
 
-Non-blocking Phase 3 backlog:
+Still deferred after Phase 4.1:
 
-- upgrade messaging polish
-- richer field-level entitlement messages
-- saved templates foundation
-- generator UX polish
-- barcode type documentation UX
+- barcode history persistence
+- file retention and storage flows
+- downloads and export packages
+- non-QR renderer support
+- API and bulk generation outputs
 
 ---
 
@@ -141,8 +143,11 @@ Do not implement in the next step:
 Do implement in the next step:
 
 - Phase 4 first task: QR Code renderer with in-memory SVG output only
+- Preview only with no download path
 - No history persistence
 - No file persistence
+- No file storage
 - No `generated_barcodes`
 - No `barcode_exports`
 - No usage increment
+- Other barcode types return `renderer_not_supported`

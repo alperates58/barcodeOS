@@ -4,6 +4,7 @@ import ExportFormatSelector from '@/features/barcode/components/ExportFormatSele
 import UsageLimitNotice from '@/features/barcode/components/UsageLimitNotice';
 import {
     BarcodeCategoryOption,
+    BarcodePreviewResult,
     BarcodeTypeConfig,
     BarcodeTypeOption,
     BarcodeValidationResult,
@@ -28,6 +29,7 @@ interface GeneratorPageProps {
     usageSummary: Record<string, UsageSummaryItem>;
     routes: {
         config: string;
+        preview: string;
         validate: string;
     };
 }
@@ -132,7 +134,9 @@ export default function BarcodeGeneratorPage() {
     const [configLoading, setConfigLoading] = useState(false);
     const [configError, setConfigError] = useState<string | null>(null);
     const [validationResult, setValidationResult] = useState<BarcodeValidationResult | null>(null);
+    const [previewResult, setPreviewResult] = useState<BarcodePreviewResult | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isPreviewing, setIsPreviewing] = useState(false);
 
     const selectedTypeOption = useMemo(
         () => barcodeTypes.find((barcodeType) => barcodeType.slug === selectedBarcodeType) ?? null,
@@ -145,6 +149,7 @@ export default function BarcodeGeneratorPage() {
             setSelectedFormat('');
             setParameterValues({});
             setValidationResult(null);
+            setPreviewResult(null);
 
             return;
         }
@@ -155,6 +160,7 @@ export default function BarcodeGeneratorPage() {
         setConfigLoading(true);
         setConfigError(null);
         setValidationResult(null);
+        setPreviewResult(null);
 
         fetch(endpoint, {
             headers: {
@@ -196,6 +202,12 @@ export default function BarcodeGeneratorPage() {
 
     const fieldErrors = useMemo(() => buildFieldErrors(validationResult), [validationResult]);
     const activeCategoryCount = barcodeCategories.length;
+    const previewAllowed = selectedBarcodeType === 'qr-code'
+        && selectedFormat === 'svg'
+        && !!config
+        && config.access.can_use
+        && (config.export_formats.find((format) => format.format === 'svg')?.allowed ?? false);
+    const showUnsupportedPreviewMessage = !!config && selectedBarcodeType !== '' && !previewAllowed;
 
     const handleParameterChange = (key: string, value: string | number | boolean | string[]) => {
         setParameterValues((current) => ({
@@ -213,6 +225,7 @@ export default function BarcodeGeneratorPage() {
 
         setIsSubmitting(true);
         setValidationResult(null);
+        setPreviewResult(null);
 
         try {
             const response = await fetch(routes.validate, {
@@ -259,6 +272,94 @@ export default function BarcodeGeneratorPage() {
         }
     };
 
+    const handlePreview = async () => {
+        if (!previewAllowed) {
+            setPreviewResult({
+                success: false,
+                status: 'renderer_not_supported',
+                validation: {
+                    valid: true,
+                    errors: [],
+                    normalized: {
+                        data: barcodeData,
+                        format: selectedFormat || null,
+                        parameters: parameterValues,
+                    },
+                },
+                normalized: {
+                    data: barcodeData,
+                    format: selectedFormat || null,
+                    parameters: parameterValues,
+                },
+                rendered: null,
+                error: {
+                    code: 'renderer_not_supported',
+                    message: 'Preview is not available for this barcode type yet.',
+                    field: null,
+                    meta: {},
+                },
+            });
+
+            return;
+        }
+
+        setIsPreviewing(true);
+        setPreviewResult(null);
+
+        try {
+            const response = await fetch(routes.preview, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({
+                    barcode_type_slug: selectedBarcodeType,
+                    data: barcodeData,
+                    format: selectedFormat || null,
+                    parameters: parameterValues,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Preview request failed with status ${response.status}.`);
+            }
+
+            const result = (await response.json()) as BarcodePreviewResult;
+            setPreviewResult(result);
+        } catch (error) {
+            setPreviewResult({
+                success: false,
+                status: 'preview_request_failed',
+                validation: {
+                    valid: false,
+                    errors: [],
+                    normalized: {
+                        data: barcodeData,
+                        format: selectedFormat || null,
+                        parameters: parameterValues,
+                    },
+                },
+                normalized: {
+                    data: barcodeData,
+                    format: selectedFormat || null,
+                    parameters: parameterValues,
+                },
+                rendered: null,
+                error: {
+                    code: 'preview_request_failed',
+                    message: error instanceof Error ? error.message : 'Preview could not be generated right now.',
+                    field: null,
+                    meta: {},
+                },
+            });
+        } finally {
+            setIsPreviewing(false);
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Barcode Generator" />
@@ -270,8 +371,8 @@ export default function BarcodeGeneratorPage() {
                             <p className="text-sm font-semibold tracking-[0.24em] text-slate-500 uppercase">Phase 3 foundation</p>
                             <h1 className="mt-2 text-3xl font-semibold text-slate-950">Barcode Generator</h1>
                             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-                                This page validates barcode configuration against live catalog metadata. Rendering, export output, history persistence,
-                                and usage consumption are still future work.
+                                This page validates barcode configuration against live catalog metadata. Phase 4.1 adds QR Code SVG preview only.
+                                Export output, downloads, history persistence, and usage consumption are still future work.
                             </p>
                         </div>
 
@@ -343,7 +444,7 @@ export default function BarcodeGeneratorPage() {
                             />
                             {fieldErrors.data && <p className="mt-2 text-sm text-rose-600">{fieldErrors.data}</p>}
                             <p className="mt-2 text-xs text-slate-500">
-                                Validation runs against barcode type rules and parameter schema only. No barcode image or document is produced.
+                                Validation runs against barcode type rules and parameter schema only. Preview stays in-memory and does not create files, history, or usage records.
                             </p>
                         </div>
 
@@ -398,7 +499,7 @@ export default function BarcodeGeneratorPage() {
                                 <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
                                     <p className="font-semibold">Access metadata looks available.</p>
                                     <p className="mt-2 leading-6">
-                                        You can validate this barcode type configuration. Rendering and export generation still remain disabled.
+                                        You can validate this barcode type configuration. QR Code currently supports SVG preview only; other barcode types still remain render-disabled.
                                     </p>
                                 </div>
                             )}
@@ -462,6 +563,49 @@ export default function BarcodeGeneratorPage() {
                             >
                                 {isSubmitting ? 'Checking Input...' : 'Validate Configuration'}
                             </button>
+
+                            {previewAllowed && (
+                                <button
+                                    type="button"
+                                    onClick={handlePreview}
+                                    disabled={isPreviewing || isSubmitting}
+                                    className="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                >
+                                    {isPreviewing ? 'Rendering Preview...' : 'Preview SVG'}
+                                </button>
+                            )}
+
+                            {showUnsupportedPreviewMessage && (
+                                <p className="mt-3 text-sm text-slate-600">
+                                    Preview is not available for this barcode type yet.
+                                </p>
+                            )}
+                        </section>
+
+                        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h2 className="text-lg font-semibold text-slate-950">SVG preview</h2>
+
+                            {previewResult?.success && previewResult.rendered ? (
+                                <div className="mt-4 space-y-4">
+                                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
+                                        SVG preview rendered in memory only. No download or file storage has been created.
+                                    </div>
+                                    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 p-6">
+                                        <div
+                                            className="mx-auto flex items-center justify-center rounded-2xl bg-white p-4 shadow-sm"
+                                            dangerouslySetInnerHTML={{ __html: previewResult.rendered.content }}
+                                        />
+                                    </div>
+                                </div>
+                            ) : previewResult?.error ? (
+                                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+                                    {previewResult.error.message}
+                                </div>
+                            ) : (
+                                <p className="mt-4 text-sm leading-6 text-slate-600">
+                                    SVG preview is available only for QR Code and only as an authenticated in-memory preview.
+                                </p>
+                            )}
                         </section>
                     </aside>
                 </form>

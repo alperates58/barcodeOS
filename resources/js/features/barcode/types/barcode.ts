@@ -94,3 +94,25 @@ export interface BarcodeValidationResult {
         parameters: Record<string, unknown>;
     };
 }
+
+export interface BarcodeRenderResult {
+    format: string;
+    mime_type: string;
+    content: string;
+    width: number;
+    height: number;
+    metadata: Record<string, unknown>;
+}
+
+export interface BarcodePreviewResult {
+    success: boolean;
+    status: string;
+    validation: BarcodeValidationResult;
+    normalized: {
+        data: string | null;
+        format: string | null;
+        parameters: Record<string, unknown>;
+    };
+    rendered: BarcodeRenderResult | null;
+    error: BarcodeValidationError | null;
+}

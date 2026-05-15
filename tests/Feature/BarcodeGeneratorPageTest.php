@@ -30,6 +30,7 @@ class BarcodeGeneratorPageTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('barcodes/generator')
                 ->where('defaultBarcodeTypeSlug', 'qr-code')
+                ->where('routes.preview', route('app.barcodes.preview'))
                 ->where('routes.validate', route('app.barcodes.validate'))
                 ->where('routes.config', route('app.barcodes.types.config', ['barcodeType' => '__BARCODE_TYPE__']))
                 ->where('usageSummary.daily_generation_limit.limit', 10)

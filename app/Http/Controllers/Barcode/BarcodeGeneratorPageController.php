@@ -78,6 +78,7 @@ class BarcodeGeneratorPageController extends Controller
             'usageSummary' => $usageLimitService->summary($user),
             'routes' => [
                 'config' => route('app.barcodes.types.config', ['barcodeType' => '__BARCODE_TYPE__']),
+                'preview' => route('app.barcodes.preview'),
                 'validate' => route('app.barcodes.validate'),
             ],
         ]);
